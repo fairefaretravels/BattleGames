@@ -1,0 +1,153 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="STREET KINGS — Enter the arena, choose your fight, and prove your power.">
+  <meta name="author" content="Saneca Mack">
+  <meta name="theme-color" content="#101014">
+  <title>STREET KINGS | Fight Hub</title>
+  <style>
+    :root {
+      --bg: #101014;
+      --panel: #1c1c24;
+      --red: #ff304f;
+      --gold: #ffc857;
+      --text: #ffffff;
+      --muted: #b8b8c4;
+    }
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  color: var(--text);
+  background:
+    radial-gradient(ellipse at top, #38202b 0%, transparent 55%),
+    var(--bg);
+  font-family: Arial, Helvetica, sans-serif;
+}
+main {
+  width: 100%;
+  max-width: 460px;
+  text-align: center;
+}
+.eyebrow {
+  color: var(--gold);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+}
+h1 {
+  margin: 12px 0 8px;
+  font-size: clamp(38px, 10vw, 60px);
+  line-height: 0.95;
+  font-weight: 1000;
+  font-style: italic;
+  letter-spacing: -2px;
+  text-shadow: 3px 3px 0 var(--red);
+}
+.subtitle {
+  margin: 18px 0 30px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+nav {
+  display: grid;
+  gap: 14px;
+}
+.fight-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 76px;
+  padding: 18px 20px;
+  border: 1px solid #41414d;
+  border-left: 5px solid var(--red);
+  border-radius: 12px;
+  color: var(--text);
+  background: var(--panel);
+  text-decoration: none;
+  text-align: left;
+  transition: transform 160ms ease, border-color 160ms ease,
+              background 160ms ease;
+}
+.fight-button:hover,
+.fight-button:focus-visible {
+  transform: translateY(-3px);
+  border-color: var(--gold);
+  background: #292933;
+  outline: none;
+}
+.button-title {
+  display: block;
+  font-size: 19px;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+.button-description {
+  display: block;
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.arrow {
+  color: var(--gold);
+  font-size: 26px;
+  font-weight: bold;
+}
+footer {
+  margin-top: 30px;
+  color: #777783;
+  font-size: 11px;
+  letter-spacing: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+  </style>
+</head>
+<body>
+  <main>
+    <div class="eyebrow">Enter the arena</div>
+    <h1>STREET<br>KINGS</h1>
+    <p class="subtitle">
+      Three doors. One fighting legacy.<br>
+      Choose your destination.
+    </p>
+<nav aria-label="Game selection">
+  <a class="fight-button" href="/sk1/">
+    <span>
+      <span class="button-title">STREET KINGS I</span>
+      <span class="button-description">Enter the first arena</span>
+    </span>
+    <span class="arrow" aria-hidden="true">→</span>
+  </a>
+  <a class="fight-button" href="/sk2/">
+    <span>
+      <span class="button-title">STREET KINGS II</span>
+      <span class="button-description">Enter the next battle</span>
+    </span>
+    <span class="arrow" aria-hidden="true">→</span>
+  </a>
+  <a class="fight-button" href="/got/">
+    <span>
+      <span class="button-title">GOT</span>
+      <span class="button-description">Enter the GOT experience</span>
+    </span>
+    <span class="arrow" aria-hidden="true">→</span>
+  </a>
+</nav>
+<footer>STREET KINGS · HOUSE OF MEDIA</footer>
+  </main>
+</body>
+</html>
