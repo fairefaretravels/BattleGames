@@ -143,6 +143,21 @@ canvas {
   80% { opacity: 1; }
   100% { opacity: 0; }
 }
+
+/* =========================================
+   STREET KINGS — ARCADE FIGHTER UI
+   Preserves existing HTML IDs and controls
+   ========================================= */
+
+:root {
+  --bg: #090910;
+  --fg: #f5f2eb;
+  --gold: #ffcc4d;
+  --red: #f32b48;
+  --panel: #171722;
+  --blue: #354c91;
+}
+
 /* MAIN MENU */
 #menu {
   position: fixed;
@@ -151,40 +166,112 @@ canvas {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  background: #0009;
+  gap: 18px;
+  padding: 24px 18px;
+  padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  background:
+    radial-gradient(ellipse at 50% 38%, #5a162b66, transparent 52%),
+    linear-gradient(145deg, #10101b, #050507 75%);
   text-align: center;
-  padding: 16px;
   z-index: 5;
+  overflow-y: auto;
+  box-sizing: border-box;
+  font-family: Impact, "Arial Narrow", sans-serif;
 }
+
+/* GAME TITLE */
 #menu h1 {
   margin: 0;
-  font-size: min(15vw, 84px);
+  max-width: 100%;
+  font-family: Impact, "Arial Black", sans-serif;
+  font-size: clamp(42px, 12vw, 88px);
+  font-weight: 900;
+  line-height: 0.88;
+  letter-spacing: 2px;
+  text-transform: uppercase;
   color: var(--gold);
-  text-shadow: 4px 4px 0 var(--red);
-  transform: skew(-6deg);
-  line-height: .95;
+  -webkit-text-stroke: 1px #fff0c2;
+  text-shadow:
+    2px 2px 0 #a66b0b,
+    4px 4px 0 #7b1728,
+    0 0 24px #ffbd4244;
+  transform: none;
 }
+
+/* MENU DESCRIPTION */
 #menu p {
-  margin: 0;
-  font: 600 13px/1.4 system-ui, sans-serif;
-  max-width: 420px;
-  color: #ddd;
+  margin: 4px 0 10px;
+  max-width: 360px;
+  font-family: "Arial", sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.8;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #c7c5d2;
 }
+
+/* MENU BUTTONS */
 .btn {
-  font: inherit;
-  font-size: 22px;
-  background: var(--red);
+  box-sizing: border-box;
+  min-width: 220px;
+  max-width: 100%;
+  padding: 14px 30px;
+  border: 2px solid #fff0c2;
+  border-radius: 5px;
+  background: linear-gradient(180deg, #ff465c, #bc102d);
   color: #fff;
-  border: 3px solid #fff;
-  padding: 10px 26px;
-  transform: skew(-8deg);
+  font-family: Impact, "Arial Narrow", sans-serif;
+  font-size: 23px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-shadow: 1px 2px 0 #670a1b;
+  box-shadow:
+    0 5px 0 #690b20,
+    0 0 18px #f32b4833;
+  transform: none;
   cursor: pointer;
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease,
+    filter 120ms ease;
+  -webkit-tap-highlight-color: transparent;
 }
+
+.btn:hover {
+  filter: brightness(1.15);
+  box-shadow:
+    0 5px 0 #690b20,
+    0 0 24px #f32b4877;
+}
+
+.btn:active {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 #690b20;
+}
+
+.btn:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 5px;
+}
+
+/* SECONDARY BUTTON */
 .btn.alt {
-  background: #2a2a4a;
+  background: linear-gradient(180deg, #34344e, #1b1b30);
+  border-color: #8888ac;
+  box-shadow: 0 5px 0 #0b0b17;
+  text-shadow: none;
 }
-/* MOBILE FIGHTING CONTROLS */
+
+.btn.alt:active {
+  box-shadow: 0 1px 0 #0b0b17;
+}
+
+/* =========================================
+   MOBILE FIGHTING CONTROLS
+   ========================================= */
+
 #ctrl {
   position: fixed;
   inset: auto 0 0 0;
@@ -192,275 +279,176 @@ canvas {
   pointer-events: none;
   display: none;
   padding-bottom: env(safe-area-inset-bottom, 0px);
+  font-family: Impact, "Arial Narrow", sans-serif;
+  z-index: 4;
 }
+
+/* VIRTUAL JOYSTICK */
 #pad {
   position: absolute;
   left: 18px;
   bottom: calc(env(safe-area-inset-bottom, 0px) + 18px);
   width: 130px;
   height: 130px;
+  box-sizing: border-box;
   border-radius: 50%;
-  background: #fff2;
-  border: 2px solid #fff6;
+  background: radial-gradient(circle, #29293cdd, #11111bcc);
+  border: 2px solid #ffffff55;
+  box-shadow:
+    inset 0 0 18px #0008,
+    0 0 15px #0005;
   pointer-events: auto;
   touch-action: none;
 }
+
+/* JOYSTICK KNOB */
 #knob {
   position: absolute;
   left: 35px;
   top: 35px;
   width: 60px;
   height: 60px;
+  box-sizing: border-box;
   border-radius: 50%;
-  background: #fffa;
+  background: linear-gradient(145deg, #fff, #aaaabc);
+  border: 2px solid #ffffffcc;
+  box-shadow: 0 3px 10px #0009;
+  pointer-events: none;
 }
+
+/* ACTION BUTTONS */
 .ab {
   position: absolute;
-  border-radius: 50%;
-  border: 3px solid #fff;
-  color: #fff;
-  font-size: 13px;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
+  border-radius: 50%;
+  border: 2px solid #ffffffcc;
+  color: #fff;
+  font-family: Impact, "Arial Narrow", sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 3px #000b;
+  background: linear-gradient(145deg, #383849ee, #11111bee);
+  box-shadow:
+    inset 0 1px 3px #ffffff22,
+    0 4px 8px #0008;
   pointer-events: auto;
   touch-action: none;
-  background: #0007;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
-.ab.on { background: var(--red); }
+
+.ab.on {
+  background: linear-gradient(145deg, #ff5269, #b80c2a);
+  border-color: #fff;
+  box-shadow:
+    inset 0 0 10px #ffffff33,
+    0 0 16px #ff284d99;
+}
+
+/* PUNCH */
 #bP {
   right: 88px;
   bottom: calc(env(safe-area-inset-bottom, 0px) + 28px);
   width: 74px;
   height: 74px;
+  background: linear-gradient(145deg, #ff5269, #bd102c);
 }
+
+/* KICK */
 #bK {
   right: 14px;
   bottom: calc(env(safe-area-inset-bottom, 0px) + 60px);
   width: 74px;
   height: 74px;
+  background: linear-gradient(145deg, #ffcc4d, #a66b0b);
+  color: #17100a;
+  text-shadow: none;
 }
+
+/* BLOCK */
 #bB {
   right: 150px;
   bottom: calc(env(safe-area-inset-bottom, 0px) + 90px);
   width: 58px;
   height: 58px;
-  background: #2a4a8a99;
+  background: linear-gradient(145deg, #526fca, #253768);
 }
+
+/* SPECIAL */
 #bS {
   right: 62px;
   bottom: calc(env(safe-area-inset-bottom, 0px) + 118px);
   width: 66px;
   height: 66px;
-  background: #b8860b99;
+  background: linear-gradient(145deg, #f5cf55, #9e6510);
+  color: #17100a;
+  text-shadow: none;
 }
+
+/* WALK / EXTRA CONTROL */
 #bW {
   right: 14px;
   bottom: calc(env(safe-area-inset-bottom, 0px) + 140px);
   width: 40px;
   height: 40px;
   font-size: 10px;
+  letter-spacing: 0;
 }
-/* MACKINTHEDARK RADIO POWER SWITCH */
-#skRadio {
-  position: fixed;
-  z-index: 6;
-  top: calc(env(safe-area-inset-top, 0px) + 112px);
-  left: 10px;
-  width: min(260px, calc(100vw - 20px));
-  box-sizing: border-box;
-  padding: 10px;
-  color: #fff;
-  background: linear-gradient(135deg, #10101f, #25102e);
-  border: 2px solid var(--gold);
-  border-radius: 10px;
-  box-shadow: 0 4px 0 #0008, 0 0 16px #ff3b5c33;
-  font: 12px/1.25 system-ui, sans-serif;
-  pointer-events: auto;
-  touch-action: manipulation;
-  user-select: none;
-  -webkit-user-select: none;
-}
-#skRadio .skRadioTop {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 10px;
-}
-#skRadio .skLive {
-  width: 8px;
-  height: 8px;
-  flex: 0 0 8px;
-  border-radius: 50%;
-  background: #666;
-}
-#skRadio.is-on .skLive {
-  background: #35e879;
-  box-shadow: 0 0 10px #35e879;
-}
-#skRadio .skRadioName {
-  font-weight: 900;
-  letter-spacing: 1px;
-  font-size: 11px;
-}
-#skRadio .skRadioSub {
-  color: #bfc3d9;
-  font-size: 10px;
-  margin-top: 2px;
-}
-#skRadio .skRadioControls {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-}
-#skRadio .skPower {
-  position: relative;
-  flex: 0 0 76px;
-  width: 76px;
-  height: 36px;
-  padding: 3px;
-  border: 2px solid #777;
-  border-radius: 6px;
-  background: #25252d;
-  cursor: pointer;
-  touch-action: manipulation;
-  transition: background .18s, border-color .18s;
-}
-#skRadio .skPower::before {
-  content: "OFF";
-  position: absolute;
-  right: 6px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #aaa;
-  font: 900 10px system-ui, sans-serif;
-}
-#skRadio .skPowerKnob {
-  position: relative;
-  z-index: 1;
-  display: block;
-  width: 30px;
-  height: 26px;
-  border-radius: 3px;
-  background: linear-gradient(#fff, #bbb);
-  box-shadow: 0 2px 4px #0008;
-  transition: transform .18s;
-}
-#skRadio.is-on .skPower {
-  background: #14542e;
-  border-color: #35e879;
-}
-#skRadio.is-on .skPower::before {
-  content: "ON";
-  right: auto;
-  left: 8px;
-  color: #8cffb0;
-}
-#skRadio.is-on .skPowerKnob {
-  transform: translateX(36px);
-  background: linear-gradient(#fff, #b8ffc9);
-}
-#skRadio .skVol {
-  flex: 1;
-  min-width: 35px;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  color: #ccc;
-  font-size: 10px;
-}
-#skRadioVolume {
-  width: 100%;
-  accent-color: var(--gold);
-  touch-action: pan-x;
-}
-#skRadioStatus {
-  margin-top: 8px;
-  min-height: 12px;
-  color: #ddd;
-  font-size: 10px;
-}
-#skRadio .skPower:focus-visible {
-  outline: 2px solid white;
-  outline-offset: 3px;
-}
-#skRadio .skPower:disabled {
-  opacity: .65;
-  cursor: wait;
-}
-@media (max-width: 600px) {
-  #skRadio {
-    top: calc(env(safe-area-inset-top, 0px) + 112px);
-    width: 204px;
-    padding: 8px;
-  }
-  #skRadio .skRadioControls {
-    gap: 7px;
-  }
-}
+
+/* REDUCED MOTION ACCESSIBILITY */
 @media (prefers-reduced-motion: reduce) {
-  #skRadio .skPower,
-  #skRadio .skPowerKnob {
+  .btn {
     transition: none;
   }
-  #banner.show,
-  #pop.show {
-    animation-duration: .01ms;
-  }
 }
+
+/* MACKINTHEDARK RADIO: just the switch */
+#skRadio{
+  position:fixed;z-index:6;
+  top:calc(env(safe-area-inset-top,0px) + 74px);left:10px;
+  width:44px;height:44px;padding:0;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:50%;border:2px solid var(--gold);
+  background:#10101fcc;color:var(--gold);
+  box-shadow:0 0 10px #ffd23f55;
+  cursor:pointer;touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+}
+#skRadio svg{width:22px;height:22px;fill:currentColor;stroke:currentColor}
+#skRadio .ic-on{display:none}
+#skRadio.on .ic-on{display:block}
+#skRadio.on .ic-off{display:none}
+#skRadio.on{background:var(--gold);color:#111;animation:skPulse 1.8s ease-in-out infinite}
+#skRadio.busy{animation:skBlink .7s ease-in-out infinite}
+#skRadio.err{border-color:var(--red);color:var(--red);box-shadow:0 0 10px #ff3b5c66}
+@keyframes skPulse{0%,100%{box-shadow:0 0 6px #ffd23f66}50%{box-shadow:0 0 16px #ffd23fcc}}
+@keyframes skBlink{50%{opacity:.45}}
 </style>
 </head>
 <body>
-<!-- MACKINTHEDARK RADIO -->
-<section id="skRadio" aria-label="Mackinthedark Radio">
-  <div class="skRadioTop">
-    <span class="skLive" aria-hidden="true"></span>
-    <div>
-      <div class="skRadioName">MACKINTHEDARK RADIO</div>
-      <div class="skRadioSub">STREET KINGS RADIO</div>
-    </div>
-  </div>
-  <div class="skRadioControls">
-    <button
-      id="skRadioToggle"
-      class="skPower"
-      type="button"
-      role="switch"
-      aria-checked="false"
-      aria-label="Turn Mackinthedark Radio on"
-    ><span class="skPowerKnob"></span></button>
-    <label class="skVol" for="skRadioVolume">
-      VOLUME
-      <input
-        id="skRadioVolume"
-        type="range"
-        min="0"
-        max="1"
-        step="0.05"
-        value="0.7"
-      >
-    </label>
-  </div>
-  <div id="skRadioStatus" role="status" aria-live="polite">
-    RADIO OFF
-  </div>
-  <audio
-    id="skRadioAudio"
-    preload="none"
-    playsinline
-    src="https://listen.streamaudio.co/proxy/mackinthedark/stream"
-  ></audio>
+ 
+<!-- Mackinthedark Radio: one switch -->
+<button id="skRadio" type="button" aria-label="Mackinthedark Radio: play" aria-pressed="false" title="Mackinthedark Radio">
+  <svg class="ic-off" viewBox="0 0 24 24" aria-hidden="true"><path stroke="none" d="M3 9v6h4l5 5V4L7 9H3z"/><path fill="none" stroke-width="2" stroke-linecap="round" d="M16 9l5 6M21 9l-5 6"/></svg>
+  <svg class="ic-on" viewBox="0 0 24 24" aria-hidden="true"><path stroke="none" d="M3 9v6h4l5 5V4L7 9H3z"/><path fill="none" stroke-width="2" stroke-linecap="round" d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>
+</button>
+<audio id="skRadioAudio" preload="none" playsinline src="https://listen.streamaudio.co/proxy/mackinthedark/stream"></audio>
 </section>
 <!-- FIGHT HUD -->
 <div id="hud">
   <div class="bar">
-    <div class="name" id="n1">REX</div>
+    <div class="name" id="n1">PLAYER 1</div>
     <div class="hp"><i id="h1"></i></div>
     <div class="pips" id="p1"></div>
   </div>
   <div id="timer">60</div>
   <div class="bar r">
-    <div class="name" id="n2">BRUISER</div>
+    <div class="name" id="n2">PLAYER 2</div>
     <div class="hp"><i id="h2"></i></div>
     <div class="pips" id="p2"></div>
   </div>
@@ -473,7 +461,7 @@ canvas {
 <div id="pop"></div>
 <!-- MAIN MENU -->
 <div id="menu">
-  <h1>STREET<br>KINGS</h1>
+  <h1>GARDEN OF<br>TERROR</h1>
   <p id="mtxt"></p>
   <button class="btn" id="go">START FIGHT</button>
   <button class="btn alt" id="nx" style="display:none">NEXT FIGHTER</button>
