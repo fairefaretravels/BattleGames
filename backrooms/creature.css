@@ -1,0 +1,44 @@
+/* Creature (a tile-sized billboard inside <floor>) */
+creature { width: 3rem; height: 3rem; pointer-events: none;
+  --lift: 0rem;   /* if it sinks below / floats above the floor, change this (try -0.1rem or +0.1rem) */
+  --h: 6rem;      /* sprite height */
+  transform: translate3d(calc(var(--cx) * 3rem), calc(var(--cz) * 3rem), var(--lift));
+  transition: transform 0.7s linear; }
+creature[hidden] { display: none; }
+creature cs, creature cg {
+  width: 100%; height: var(--h); top: auto; bottom: 0; transform-origin: 50% 100%;
+  transform: rotateX(-90deg) scaleX(var(--flip, 1));
+  background: center bottom / contain no-repeat; }
+creature cg { mix-blend-mode: screen; opacity: var(--near, .3); filter: blur(2px) brightness(1.4);
+  animation: cpulse 1s ease-in-out infinite alternate; }
+@keyframes cpulse { from { filter: blur(2px) brightness(1); } to { filter: blur(3px) brightness(1.8); } }
+
+/* HUD (outside the 3D scene; thumb-friendly) */
+#hud { position: fixed; left: 0; right: 0; bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  display: none; justify-content: center; z-index: 20; pointer-events: none; }
+body.playing #hud { display: flex; }
+#shield { pointer-events: auto; position: relative; overflow: hidden; min-width: 8.5rem; min-height: 3.5rem;
+  padding: 0 1.5rem; border: 2px solid #e8e4a0; border-radius: 2rem; background: rgba(20,18,5,.75);
+  color: #e8e4a0; font: 700 1.1rem "Courier New", monospace; touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent; user-select: none; }
+#shield span { position: relative; z-index: 1; }
+#shield i { position: absolute; inset: 0; background: rgba(232,228,160,.35); transform-origin: left; transform: scaleX(1); }
+#shield:disabled { opacity: .6; }
+#shield.cool i { background: rgba(232,228,160,.18); }
+
+/* Shield effect: world dims and gets a faint cyan veil */
+#veil { position: fixed; inset: 0; z-index: 10; pointer-events: none; opacity: 0; transition: opacity .25s;
+  background: radial-gradient(circle, rgba(120,220,255,.08), rgba(20,60,90,.55)); }
+body.shielded #veil { opacity: 1; }
+
+/* Caught screen */
+#over { position: fixed; inset: 0; z-index: 30; display: none; flex-direction: column; align-items: center;
+  justify-content: center; gap: .5rem; background: #000; color: #fff; font-family: "Courier New", monospace;
+  pointer-events: auto; touch-action: manipulation; }
+#over.on { display: flex; }
+#over img { max-width: 100%; max-height: 70dvh; object-fit: contain; animation: shake .15s 6; }
+#over p { font-size: 1.6rem; margin: .5rem 0 0; }
+#over b { opacity: .7; padding-bottom: env(safe-area-inset-bottom, 0px); }
+@keyframes shake { 25% { transform: translate(6px,-4px); } 75% { transform: translate(-6px,4px); } }
+/* body text is transparent in your CSS; restore it for our overlay */
+#over, #over * { color: #fff; }
