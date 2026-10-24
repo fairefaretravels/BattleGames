@@ -428,6 +428,55 @@ canvas {
 #skRadio.err{border-color:var(--red);color:var(--red);box-shadow:0 0 10px #ff3b5c66}
 @keyframes skPulse{0%,100%{box-shadow:0 0 6px #ffd23f66}50%{box-shadow:0 0 16px #ffd23fcc}}
 @keyframes skBlink{50%{opacity:.45}}
+  /* GARDEN OF TERROR palette (from Industrial.jpg) */
+:root {
+  --bg: #070b14;
+  --fg: #e6f2ee;
+  --gold: #6dffc8;   /* bioluminescent mint: replaces yellow everywhere */
+  --cy: #46e6ff;
+}
+
+#menu {
+  background:
+    radial-gradient(ellipse at 50% 40%, #1b3a4acc, transparent 60%),
+    radial-gradient(ellipse at 10% 95%, #2f6a3466, transparent 50%),
+    radial-gradient(ellipse at 92% 88%, #4a2a8a77, transparent 50%),
+    linear-gradient(180deg, #060a14e6, #0a1424b3 55%, #050810f0);
+}
+#menu h1 {
+  color: #8dffd6;
+  -webkit-text-stroke: 1px #d9fff0;
+  text-shadow: 2px 2px 0 #1f6f5c, 4px 4px 0 #1a2a5a, 0 0 28px #3dffc099;
+}
+#menu p { color: #a9bdd6; }
+
+.btn {
+  border-color: #aaffe4;
+  background: linear-gradient(180deg, #2fbf9a, #0f5f5a);
+  text-shadow: 1px 2px 0 #06302f;
+  box-shadow: 0 5px 0 #06302f, 0 0 20px #3dffc055;
+}
+.btn:hover { box-shadow: 0 5px 0 #06302f, 0 0 28px #3dffc0aa; }
+.btn:active { box-shadow: 0 1px 0 #06302f; }
+.btn.alt {
+  border-color: #b99cff;
+  background: linear-gradient(180deg, #6a3fb8, #2c1660);
+  box-shadow: 0 5px 0 #150a33, 0 0 18px #7a3fc055;
+}
+.btn.alt:active { box-shadow: 0 1px 0 #150a33; }
+
+/* in-fight HUD + touch buttons */
+.hp i { background: linear-gradient(#b9ffe6, #2fbf7a); }
+.r .hp i { background: linear-gradient(#c9a0ff, #6a2fc0); }
+#bP { background: linear-gradient(145deg, #8a5cff, #3a1c80); }
+#bK { background: linear-gradient(145deg, #6dffc8, #1f7a5c); }
+#bB { background: linear-gradient(145deg, #4a7bff, #1a2a7a); }
+#bS { background: linear-gradient(145deg, #ffb454, #9a4a10); }
+.ab.on {
+  background: linear-gradient(145deg, #6dffc8, #1f9a78);
+  box-shadow: inset 0 0 10px #ffffff33, 0 0 16px #3dffc0aa;
+}
+#skRadio.on { color: #07110d; }
 </style>
 </head>
 <body>
@@ -438,7 +487,6 @@ canvas {
   <svg class="ic-on" viewBox="0 0 24 24" aria-hidden="true"><path stroke="none" d="M3 9v6h4l5 5V4L7 9H3z"/><path fill="none" stroke-width="2" stroke-linecap="round" d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>
 </button>
 <audio id="skRadioAudio" preload="none" playsinline src="https://listen.streamaudio.co/proxy/mackinthedark/stream"></audio>
-</section>
 <!-- FIGHT HUD -->
 <div id="hud">
   <div class="bar">
@@ -1314,79 +1362,48 @@ E.reset(3,0);
 setOpp();
 frame();
 </script>
-<script>
 /* =========================================================
    MACKINTHEDARK RADIO
    Independent ON/OFF switch and volume control.
    Does not alter fighting mechanics or game inputs.
    ========================================================= */
+</script>
+  <script>
 (() => {
-  const panel = document.getElementById('skRadio');
+  const btn = document.getElementById('skRadio');
   const audio = document.getElementById('skRadioAudio');
-  const toggle = document.getElementById('skRadioToggle');
-  const volume = document.getElementById('skRadioVolume');
-  const status = document.getElementById('skRadioStatus');
-  if (!panel || !audio || !toggle || !volume || !status) return;
-  audio.volume = Number(volume.value);
-  function setPower(on) {
-    panel.classList.toggle('is-on', on);
-    toggle.setAttribute('aria-checked', String(on));
-    toggle.setAttribute(
-      'aria-label',
-      on
-        ? 'Turn Mackinthedark Radio off'
-        : 'Turn Mackinthedark Radio on'
-    );
+  if (!btn || !audio) return;
+  const STREAM = audio.getAttribute('src');
+  audio.volume = 0.8;
+
+  function ui(on) {
+    btn.classList.toggle('on', on);
+    btn.setAttribute('aria-pressed', String(on));
+    btn.setAttribute('aria-label', 'Mackinthedark Radio: ' + (on ? 'pause' : 'play'));
   }
-  async function turnOn() {
-    status.textContent = 'CONNECTING TO STATION...';
-    toggle.disabled = true;
+
+  btn.addEventListener('click', async e => {
+    e.preventDefault();
+    btn.blur(); // keeps Space free for the fighter's special
+    if (!audio.paused) { audio.pause(); return; }
+    btn.classList.remove('err');
+    btn.classList.add('busy');
     try {
+      audio.src = STREAM; // reload so a live stream resumes live, not stale
+      audio.load();
       await audio.play();
-      setPower(true);
-      status.textContent = 'LIVE — MACKINTHEDARK RADIO';
-    } catch (error) {
-      setPower(false);
-      status.textContent = 'CONNECTION FAILED — TAP TO RETRY';
-    } finally {
-      toggle.disabled = false;
-    }
-  }
-  function turnOff() {
-    audio.pause();
-    setPower(false);
-    status.textContent = 'RADIO OFF';
-  }
-  toggle.addEventListener('click', () => {
-    toggle.blur();
-    if (audio.paused) {
-      turnOn();
-    } else {
-      turnOff();
+    } catch (err) {
+      btn.classList.remove('busy');
+      btn.classList.add('err');
+      ui(false);
     }
   });
-  volume.addEventListener('input', () => {
-    audio.volume = Number(volume.value);
-  });
-  volume.addEventListener('change', () => volume.blur());
-  audio.addEventListener('playing', () => {
-    setPower(true);
-    status.textContent = 'LIVE — MACKINTHEDARK RADIO';
-  });
-  audio.addEventListener('pause', () => {
-    setPower(false);
-    if (status.textContent.startsWith('LIVE')) {
-      status.textContent = 'RADIO OFF';
-    }
-  });
-  audio.addEventListener('waiting', () => {
-    status.textContent = 'BUFFERING STATION...';
-  });
-  audio.addEventListener('error', () => {
-    setPower(false);
-    status.textContent = 'STREAM UNAVAILABLE — TRY AGAIN';
-  });
-  setPower(false);
+
+  audio.addEventListener('playing', () => { btn.classList.remove('busy', 'err'); ui(true); });
+  audio.addEventListener('pause',   () => { btn.classList.remove('busy'); ui(false); });
+  audio.addEventListener('waiting', () => btn.classList.add('busy'));
+  audio.addEventListener('error',   () => { btn.classList.remove('busy'); btn.classList.add('err'); ui(false); });
+  ui(false);
 })();
 </script>
 </body>
