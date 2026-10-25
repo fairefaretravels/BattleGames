@@ -1,0 +1,1792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#090909">
+<title>SENSTACK: Fast Food + Beauty Game</title>
+<meta name="description" content="SENSTACK: A fast-paced interactive game combining fast food challenges, beauty, shopping, hair, makeup, and creative style.">
+<!-- SEO -->
+<meta name="robots" content="index, follow">
+<meta name="author" content="SENSTACK">
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="SENSTACK: Fast Food + Beauty Game">
+<meta property="og:description" content="Build the meal. Create the look. Shop the products. Complete the challenge.">
+<meta property="og:image" content="assets/seo/thestatic.PNG">
+<meta property="og:image:alt" content="SENSTACK Fast Food + Beauty Game">
+<!-- Twitter / Social Preview -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="SENSTACK: Fast Food + Beauty Game">
+<meta name="twitter:description" content="Build the meal. Create the look. Shop the products. Complete the challenge.">
+<meta name="twitter:image" content="assets/seo/thestatic.PNG">
+<meta name="twitter:image:alt" content="SENSTACK Fast Food + Beauty Game">
+<!-- Mobile -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+</head>
+
+<style>
+:root{
+  --bg:#090909;
+  --card:#121212;
+  --card2:#181818;
+  --bd:#2d2d2d;
+  --tx:#f5f5f5;
+  --mu:#999;
+  --ac:#ff3b30;
+  --gold:#ffd60a;
+  --ok:#34c759;
+  --pink:#ff2d55;
+  --purple:#af52de;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+body{
+  background:var(--bg);
+  color:var(--tx);
+  font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  line-height:1.45;
+}
+
+button{
+  font:inherit;
+}
+
+.w{
+  width:min(960px,92%);
+  margin:auto;
+  padding:24px 0 50px;
+}
+
+.top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  margin-bottom:20px;
+}
+
+.brand{
+  font-size:11px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color:var(--mu);
+}
+
+h1{
+  font-size:clamp(32px,9vw,58px);
+  line-height:.95;
+  letter-spacing:-2px;
+  margin:8px 0;
+}
+
+h2{
+  font-size:13px;
+  text-transform:uppercase;
+  letter-spacing:2px;
+  color:var(--mu);
+  margin:28px 0 12px;
+}
+
+.sub{
+  color:var(--mu);
+  font-size:14px;
+}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+  margin:18px 0;
+}
+
+.stat{
+  background:var(--card);
+  border:1px solid var(--bd);
+  border-radius:14px;
+  padding:11px;
+}
+
+.stat b{
+  display:block;
+  font-size:22px;
+}
+
+.stat span{
+  display:block;
+  color:var(--mu);
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:1px;
+}
+
+.modes{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:20px;
+}
+
+.mode{
+  min-height:145px;
+  border:1px solid var(--bd);
+  background:var(--card);
+  border-radius:18px;
+  padding:18px;
+  text-align:left;
+  cursor:pointer;
+  color:var(--tx);
+  transition:.15s;
+}
+
+.mode:hover{
+  border-color:var(--tx);
+  transform:translateY(-2px);
+}
+
+.mode.active{
+  border-color:var(--ac);
+  box-shadow:0 0 0 1px var(--ac);
+}
+
+.mode.beauty.active{
+  border-color:var(--pink);
+  box-shadow:0 0 0 1px var(--pink);
+}
+
+.mode-icon{
+  font-size:38px;
+  margin-bottom:8px;
+}
+
+.mode h3{
+  font-size:18px;
+}
+
+.mode p{
+  color:var(--mu);
+  font-size:12px;
+  margin-top:4px;
+}
+
+.panel{
+  background:var(--card);
+  border:1px solid var(--bd);
+  border-radius:18px;
+  padding:16px;
+  margin-top:12px;
+}
+
+.hero{
+  border-radius:18px;
+  padding:20px;
+  background:
+    radial-gradient(circle at 90% 10%,rgba(255,59,48,.22),transparent 35%),
+    var(--card);
+  border:1px solid var(--bd);
+}
+
+.beautyHero{
+  background:
+    radial-gradient(circle at 90% 10%,rgba(255,45,85,.25),transparent 35%),
+    var(--card);
+}
+
+.order{
+  font-size:25px;
+  font-weight:800;
+  margin:5px 0 10px;
+}
+
+.timer{
+  height:9px;
+  background:#252525;
+  border-radius:99px;
+  overflow:hidden;
+  margin:12px 0;
+}
+
+.timer i{
+  display:block;
+  height:100%;
+  width:100%;
+  background:var(--ok);
+  transition:width .2s linear;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(135px,1fr));
+  gap:10px;
+}
+
+.item{
+  min-height:120px;
+  background:var(--card2);
+  border:1px solid var(--bd);
+  border-radius:16px;
+  padding:13px;
+  color:var(--tx);
+  cursor:pointer;
+  text-align:center;
+}
+
+.item:hover:not(:disabled){
+  border-color:var(--tx);
+}
+
+.item:disabled{
+  opacity:.35;
+  cursor:not-allowed;
+}
+
+.item.done{
+  border-color:var(--ok);
+  background:#102014;
+}
+
+.item-icon{
+  font-size:38px;
+  display:block;
+  margin-bottom:6px;
+}
+
+.item-name{
+  font-size:12px;
+  font-weight:700;
+}
+
+.item-small{
+  color:var(--mu);
+  font-size:10px;
+  margin-top:3px;
+}
+
+.assembly{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+
+.box{
+  min-height:190px;
+  border:1px dashed #555;
+  border-radius:16px;
+  padding:14px;
+  background:#0d0d0d;
+}
+
+.box h3{
+  font-size:13px;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  color:var(--mu);
+  margin-bottom:8px;
+}
+
+.stack{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+
+.layer{
+  padding:8px;
+  border-radius:8px;
+  background:#202020;
+  text-align:center;
+  font-size:12px;
+}
+
+.btn{
+  border:1px solid var(--bd);
+  background:transparent;
+  color:var(--tx);
+  border-radius:999px;
+  padding:9px 15px;
+  cursor:pointer;
+}
+
+.btn:hover:not(:disabled){
+  border-color:var(--tx);
+}
+
+.btn:disabled{
+  opacity:.35;
+  cursor:not-allowed;
+}
+
+.primary{
+  background:var(--ac);
+  border-color:var(--ac);
+  color:white;
+}
+
+.pink{
+  background:var(--pink);
+  border-color:var(--pink);
+  color:white;
+}
+
+.green{
+  background:var(--ok);
+  border-color:var(--ok);
+  color:#071407;
+}
+
+.row{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:8px;
+}
+
+.reward{
+  font-size:24px;
+  font-weight:800;
+}
+
+.notice{
+  padding:12px;
+  border:1px solid var(--bd);
+  border-radius:12px;
+  color:var(--mu);
+  font-size:13px;
+  margin-top:10px;
+}
+
+.look{
+  border:1px solid var(--bd);
+  border-radius:18px;
+  overflow:hidden;
+  background:var(--card);
+}
+
+.look-photo{
+  min-height:230px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  font-size:70px;
+  background:
+    radial-gradient(circle at 30% 20%,#5d3b4d,transparent 30%),
+    radial-gradient(circle at 70% 70%,#33244d,transparent 40%),
+    #19131a;
+}
+
+.look-body{
+  padding:15px;
+}
+
+.look-title{
+  font-size:20px;
+  font-weight:800;
+}
+
+.look-meta{
+  color:var(--mu);
+  font-size:12px;
+  margin-top:3px;
+}
+
+.product-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(145px,1fr));
+  gap:10px;
+}
+
+.product{
+  border:1px solid var(--bd);
+  background:var(--card2);
+  border-radius:15px;
+  padding:13px;
+  cursor:pointer;
+}
+
+.product.owned{
+  border-color:var(--ok);
+}
+
+.product.selected{
+  border-color:var(--pink);
+  box-shadow:0 0 0 1px var(--pink);
+}
+
+.product-icon{
+  font-size:32px;
+}
+
+.product h3{
+  font-size:13px;
+  margin-top:5px;
+}
+
+.product p{
+  color:var(--mu);
+  font-size:11px;
+}
+
+.price{
+  display:block;
+  margin-top:7px;
+  font-weight:700;
+}
+
+.look-builder{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+
+.face{
+  min-height:360px;
+  border-radius:20px;
+  background:
+    radial-gradient(circle at 50% 32%,#d89d78 0 20%,transparent 20.5%),
+    radial-gradient(circle at 50% 55%,#d89d78 0 26%,transparent 26.5%),
+    linear-gradient(#292029,#171317);
+  position:relative;
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.face-label{
+  font-size:70px;
+  opacity:.2;
+}
+
+.applied{
+  padding:12px;
+  border:1px solid var(--bd);
+  border-radius:14px;
+}
+
+.applied div{
+  padding:8px 0;
+  border-bottom:1px solid var(--bd);
+  font-size:12px;
+}
+
+.applied div:last-child{
+  border-bottom:0;
+}
+
+.log{
+  max-height:170px;
+  overflow:auto;
+  color:var(--mu);
+  font-size:12px;
+}
+
+.log div{
+  padding:5px 0;
+  border-bottom:1px solid #1e1e1e;
+}
+
+.hidden{
+  display:none!important;
+}
+
+@media(max-width:650px){
+  .stats{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .modes{
+    grid-template-columns:1fr;
+  }
+
+  .assembly,
+  .look-builder{
+    grid-template-columns:1fr;
+  }
+
+  .grid{
+    grid-template-columns:repeat(2,1fr);
+  }
+}
+</style>
+</head>
+
+<body>
+
+<main class="w">
+
+  <div class="top">
+    <div class="brand">SENSTACK • GAME LAB</div>
+    <button class="btn" onclick="resetGame()">Restart</button>
+  </div>
+
+  <section class="hero" id="hero">
+    <div class="brand">MINI GAME COLLECTION</div>
+    <h1>FAST FOOD<br>& BEAUTY.</h1>
+    <p class="sub">
+      Collect what you need. Build the order. Recreate the look.
+      Earn cash, stars and unlock better products.
+    </p>
+  </section>
+
+  <div class="stats" id="stats"></div>
+
+  <section class="modes">
+    <button class="mode active" id="foodMode" onclick="setMode('food')">
+      <div class="mode-icon">🍔</div>
+      <h3>FAST FOOD RUSH</h3>
+      <p>Collect fries, nuggets and ingredients. Build the customer's order.</p>
+    </button>
+
+    <button class="mode beauty" id="beautyMode" onclick="setMode('beauty')">
+      <div class="mode-icon">💄</div>
+      <h3>BEAUTY LOOK</h3>
+      <p>Post a look, shop for the products and recreate the hair + makeup.</p>
+    </button>
+  </section>
+
+  <!-- =========================================================
+       FAST FOOD GAME
+       ========================================================= -->
+
+  <section id="foodGame">
+
+    <h2>Order ticket</h2>
+
+    <div class="panel">
+      <div class="brand">CUSTOMER ORDER</div>
+      <div class="order" id="foodOrder"></div>
+      <p class="sub" id="foodInstructions"></p>
+
+      <div class="timer">
+        <i id="foodTimer"></i>
+      </div>
+
+      <div class="row">
+        <span class="sub">Time remaining:</span>
+        <b id="foodTime"></b>
+      </div>
+    </div>
+
+    <h2>Kitchen shelves</h2>
+
+    <div class="grid" id="foodItems"></div>
+
+    <h2>Build the order</h2>
+
+    <div class="assembly">
+
+      <div class="box">
+        <h3>🍟 Fries Box</h3>
+        <div class="stack" id="friesBox"></div>
+      </div>
+
+      <div class="box">
+        <h3>🍗 Nugget Box</h3>
+        <div class="stack" id="nuggetBox"></div>
+      </div>
+
+      <div class="box">
+        <h3>🍔 Burger</h3>
+        <div class="stack" id="burgerBox"></div>
+      </div>
+
+      <div class="box">
+        <h3>🥤 Drink</h3>
+        <div class="stack" id="drinkBox"></div>
+      </div>
+
+    </div>
+
+    <div class="panel">
+      <div class="row">
+        <button class="btn primary" id="serveBtn" onclick="serveFood()">
+          SERVE ORDER
+        </button>
+
+        <button class="btn" onclick="newFoodOrder()">
+          NEW ORDER
+        </button>
+      </div>
+
+      <div class="notice" id="foodMessage">
+        Grab the ingredients from the kitchen, then serve the completed order.
+      </div>
+    </div>
+
+  </section>
+
+  <!-- =========================================================
+       BEAUTY GAME
+       ========================================================= -->
+
+  <section id="beautyGame" class="hidden">
+
+    <h2>Social beauty feed</h2>
+
+    <div class="look beautyHero">
+
+      <div class="look-photo" id="lookPhoto">
+        💋
+      </div>
+
+      <div class="look-body">
+        <div class="brand">TRENDING LOOK</div>
+        <div class="look-title" id="lookTitle"></div>
+        <div class="look-meta" id="lookMeta"></div>
+
+        <div class="notice" id="lookDescription"></div>
+
+        <div style="margin-top:12px">
+          <button class="btn pink" onclick="postLook()">
+            📸 POST THIS LOOK
+          </button>
+
+          <button class="btn" onclick="newLook()">
+            NEXT LOOK
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <h2>Shopping list</h2>
+
+    <div class="panel">
+      <div class="brand">PRODUCTS NEEDED</div>
+      <div id="shoppingList"></div>
+    </div>
+
+    <h2>Beauty store</h2>
+
+    <div class="product-grid" id="products"></div>
+
+    <h2>Recreate the look</h2>
+
+    <div class="look-builder">
+
+      <div class="face">
+        <div class="face-label">✨</div>
+      </div>
+
+      <div class="panel">
+
+        <div class="brand">YOUR BEAUTY BAG</div>
+
+        <div class="applied" id="applied"></div>
+
+        <div style="margin-top:14px">
+          <button class="btn pink" id="applyBtn" onclick="applyLook()">
+            APPLY LOOK
+          </button>
+        </div>
+
+        <div class="notice" id="beautyMessage">
+          Shop for every product required by the posted look.
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+  <h2>Activity</h2>
+
+  <div class="panel">
+    <div class="log" id="log"></div>
+  </div>
+
+</main>
+
+<script>
+
+/* ============================================================
+   GAME STATE
+   ============================================================ */
+
+const SAVE_KEY = "senstack-fastfood-beauty-v1";
+
+let S = {
+  cash: 100,
+  stars: 0,
+  orders: 0,
+  looks: 0,
+  mode: "food",
+
+  food: {
+    order: null,
+    collected: [],
+    time: 60
+  },
+
+  beauty: {
+    look: null,
+    shopping: [],
+    applied: []
+  },
+
+  log: []
+};
+
+
+/* ============================================================
+   FOOD DATABASE
+   ============================================================ */
+
+const FOOD_ITEMS = {
+
+  fries: {
+    name:"Fries",
+    icon:"🍟",
+    type:"fries"
+  },
+
+  nuggets: {
+    name:"Nuggets",
+    icon:"🍗",
+    type:"nuggets"
+  },
+
+  bun: {
+    name:"Burger Bun",
+    icon:"🍞",
+    type:"burger"
+  },
+
+  patty: {
+    name:"Beef Patty",
+    icon:"🥩",
+    type:"burger"
+  },
+
+  cheese: {
+    name:"Cheese",
+    icon:"🧀",
+    type:"burger"
+  },
+
+  lettuce: {
+    name:"Lettuce",
+    icon:"🥬",
+    type:"burger"
+  },
+
+  tomato: {
+    name:"Tomato",
+    icon:"🍅",
+    type:"burger"
+  },
+
+  sauce: {
+    name:"Secret Sauce",
+    icon:"🥫",
+    type:"burger"
+  },
+
+  cola: {
+    name:"Cola",
+    icon:"🥤",
+    type:"drink"
+  },
+
+  water: {
+    name:"Water",
+    icon:"💧",
+    type:"drink"
+  }
+
+};
+
+
+/* ============================================================
+   BEAUTY DATABASE
+   ============================================================ */
+
+const PRODUCTS = {
+
+  foundation:{
+    name:"Glow Foundation",
+    icon:"🧴",
+    category:"Makeup",
+    price:18
+  },
+
+  concealer:{
+    name:"Perfect Concealer",
+    icon:"🎨",
+    category:"Makeup",
+    price:12
+  },
+
+  blush:{
+    name:"Pink Blush",
+    icon:"🌸",
+    category:"Makeup",
+    price:10
+  },
+
+  lipgloss:{
+    name:"Glass Lip Gloss",
+    icon:"💋",
+    category:"Lips",
+    price:9
+  },
+
+  lipstick:{
+    name:"Berry Lipstick",
+    icon:"💄",
+    category:"Lips",
+    price:14
+  },
+
+  mascara:{
+    name:"Volume Mascara",
+    icon:"👁️",
+    category:"Eyes",
+    price:13
+  },
+
+  eyeliner:{
+    name:"Black Liner",
+    icon:"🖊️",
+    category:"Eyes",
+    price:11
+  },
+
+  highlighter:{
+    name:"Face Highlighter",
+    icon:"✨",
+    category:"Face",
+    price:15
+  },
+
+  edgegel:{
+    name:"Edge Control",
+    icon:"🫧",
+    category:"Hair",
+    price:8
+  },
+
+  curls:{
+    name:"Curl Cream",
+    icon:"🌀",
+    category:"Hair",
+    price:16
+  },
+
+  wig:{
+    name:"Signature Wig",
+    icon:"💇🏾‍♀️",
+    category:"Hair",
+    price:35
+  },
+
+  braids:{
+    name:"Knotless Braids",
+    icon:"👧🏾",
+    category:"Hair",
+    price:42
+  },
+
+  lashes:{
+    name:"Wispy Lashes",
+    icon:"🪶",
+    category:"Eyes",
+    price:12
+  }
+
+};
+
+
+/* ============================================================
+   LOOK DATABASE
+   ============================================================ */
+
+const LOOKS = [
+
+  {
+    title:"Soft Glam Sunday",
+    emoji:"💗",
+    description:"A soft, polished glam look with glowing skin, pink cheeks, glossy lips and styled curls.",
+    products:[
+      "foundation",
+      "concealer",
+      "blush",
+      "lipgloss",
+      "mascara",
+      "highlighter",
+      "curls"
+    ]
+  },
+
+  {
+    title:"Main Character",
+    emoji:"💋",
+    description:"Bold lips, defined eyes, glowing skin and a signature hairstyle.",
+    products:[
+      "foundation",
+      "concealer",
+      "lipstick",
+      "eyeliner",
+      "mascara",
+      "highlighter",
+      "wig"
+    ]
+  },
+
+  {
+    title:"Clean Girl",
+    emoji:"✨",
+    description:"Fresh skin, subtle color, glossy lips and a sleek pulled-back hairstyle.",
+    products:[
+      "foundation",
+      "concealer",
+      "blush",
+      "lipgloss",
+      "mascara",
+      "edgegel"
+    ]
+  },
+
+  {
+    title:"Birthday Glam",
+    emoji:"🎂",
+    description:"Full glam with lashes, highlighter, glossy lips and a dramatic hairstyle.",
+    products:[
+      "foundation",
+      "concealer",
+      "blush",
+      "lipgloss",
+      "mascara",
+      "lashes",
+      "highlighter",
+      "wig"
+    ]
+  },
+
+  {
+    title:"Braided Beauty",
+    emoji:"👑",
+    description:"Natural glam paired with a fresh knotless braid style.",
+    products:[
+      "foundation",
+      "concealer",
+      "blush",
+      "lipgloss",
+      "mascara",
+      "edgegel",
+      "braids"
+    ]
+  }
+
+];
+
+
+/* ============================================================
+   FOOD ORDERS
+   ============================================================ */
+
+const FOOD_ORDERS = [
+
+  {
+    name:"Classic Combo",
+    fries:1,
+    nuggets:0,
+    burger:["bun","patty","cheese","lettuce","tomato","sauce"],
+    drink:"cola"
+  },
+
+  {
+    name:"Nugget Box",
+    fries:1,
+    nuggets:1,
+    burger:[],
+    drink:"water"
+  },
+
+  {
+    name:"Big Burger Meal",
+    fries:1,
+    nuggets:0,
+    burger:["bun","patty","cheese","lettuce","tomato","sauce"],
+    drink:"cola"
+  },
+
+  {
+    name:"Burger + Nuggets",
+    fries:1,
+    nuggets:1,
+    burger:["bun","patty","cheese","lettuce","sauce"],
+    drink:"cola"
+  }
+
+];
+
+
+/* ============================================================
+   INITIALIZATION
+   ============================================================ */
+
+function load(){
+
+  try{
+
+    const saved = localStorage.getItem(SAVE_KEY);
+
+    if(saved){
+      S = JSON.parse(saved);
+    }
+
+  }catch(e){}
+
+  if(!S.log.length){
+    S.log = ["Welcome to SENSTACK Game Lab."];
+  }
+
+  if(!S.food.order){
+    newFoodOrder();
+  }
+
+  if(!S.beauty.look){
+    newLook();
+  }
+
+  draw();
+
+}
+
+
+function save(){
+
+  try{
+    localStorage.setItem(SAVE_KEY,JSON.stringify(S));
+  }catch(e){}
+
+}
+
+
+function log(message){
+
+  S.log.unshift(message);
+
+  S.log = S.log.slice(0,30);
+
+}
+
+
+/* ============================================================
+   MODE SWITCHING
+   ============================================================ */
+
+function setMode(mode){
+
+  S.mode = mode;
+
+  document
+    .getElementById("foodGame")
+    .classList.toggle("hidden",mode !== "food");
+
+  document
+    .getElementById("beautyGame")
+    .classList.toggle("hidden",mode !== "beauty");
+
+  document
+    .getElementById("foodMode")
+    .classList.toggle("active",mode === "food");
+
+  document
+    .getElementById("beautyMode")
+    .classList.toggle("active",mode === "beauty");
+
+  draw();
+
+}
+
+
+/* ============================================================
+   FOOD GAME
+   ============================================================ */
+
+function newFoodOrder(){
+
+  const source =
+    FOOD_ORDERS[
+      Math.floor(Math.random()*FOOD_ORDERS.length)
+    ];
+
+  S.food.order = JSON.parse(JSON.stringify(source));
+
+  S.food.collected = [];
+
+  S.food.time = 60;
+
+  log("New food order: " + source.name);
+
+  draw();
+
+}
+
+
+function collectFood(id){
+
+  const item = FOOD_ITEMS[id];
+
+  if(!item) return;
+
+  S.food.collected.push(id);
+
+  log("Collected " + item.name + ".");
+
+  draw();
+
+}
+
+
+function countCollected(id){
+
+  return S.food.collected.filter(x=>x===id).length;
+
+}
+
+
+function hasRequiredFood(id){
+
+  const order = S.food.order;
+
+  if(id==="fries") return order.fries > 0;
+
+  if(id==="nuggets") return order.nuggets > 0;
+
+  if(id==="drink") return !!order.drink;
+
+  return order.burger.includes(id);
+
+}
+
+
+function serveFood(){
+
+  const order = S.food.order;
+
+  const required = [];
+
+  if(order.fries) required.push("fries");
+
+  if(order.nuggets) required.push("nuggets");
+
+  order.burger.forEach(x=>required.push(x));
+
+  if(order.drink) required.push(order.drink);
+
+  const success =
+    required.every(x=>countCollected(x)>0);
+
+  if(!success){
+
+    document.getElementById("foodMessage").innerHTML =
+      "❌ The order is incomplete. Check the ticket and collect every required item.";
+
+    return;
+
+  }
+
+  const reward = 25 + required.length * 3;
+
+  S.cash += reward;
+
+  S.stars++;
+
+  S.orders++;
+
+  log(
+    `Order completed: ${order.name}. +$${reward} and +1 star.`
+  );
+
+  document.getElementById("foodMessage").innerHTML =
+    `✅ ORDER COMPLETE! You earned $${reward}.`;
+
+  setTimeout(newFoodOrder,900);
+
+}
+
+
+/* ============================================================
+   FOOD TIMER
+   ============================================================ */
+
+setInterval(()=>{
+
+  if(S.mode !== "food") return;
+
+  if(!S.food.order) return;
+
+  if(S.food.time <= 0) return;
+
+  S.food.time--;
+
+  if(S.food.time === 0){
+
+    log("Food order timed out.");
+
+    S.cash = Math.max(0,S.cash-5);
+
+    S.food.time = 60;
+
+    document.getElementById("foodMessage").innerHTML =
+      "⏰ Order timed out. The customer left.";
+
+  }
+
+  draw();
+
+},1000);
+
+
+/* ============================================================
+   BEAUTY GAME
+   ============================================================ */
+
+function newLook(){
+
+  const look =
+    LOOKS[
+      Math.floor(Math.random()*LOOKS.length)
+    ];
+
+  S.beauty.look = JSON.parse(JSON.stringify(look));
+
+  S.beauty.shopping = [];
+
+  S.beauty.applied = [];
+
+  log("A new beauty look was posted: " + look.title);
+
+  draw();
+
+}
+
+
+function postLook(){
+
+  if(!S.beauty.look) return;
+
+  log(
+    `📸 You posted "${S.beauty.look.title}" to the beauty feed.`
+  );
+
+  S.stars++;
+
+  document.getElementById("beautyMessage").innerHTML =
+    "📸 Look posted. Now shop for every product needed to recreate it.";
+
+  draw();
+
+}
+
+
+function buyBeauty(id){
+
+  const product = PRODUCTS[id];
+
+  if(!product) return;
+
+  if(S.beauty.shopping.includes(id)) return;
+
+  if(S.cash < product.price){
+
+    document.getElementById("beautyMessage").innerHTML =
+      "You don't have enough cash for that product.";
+
+    return;
+
+  }
+
+  S.cash -= product.price;
+
+  S.beauty.shopping.push(id);
+
+  log(
+    `Bought ${product.name} for $${product.price}.`
+  );
+
+  draw();
+
+}
+
+
+function applyLook(){
+
+  const look = S.beauty.look;
+
+  if(!look) return;
+
+  const missing =
+    look.products.filter(
+      id => !S.beauty.shopping.includes(id)
+    );
+
+  if(missing.length){
+
+    document.getElementById("beautyMessage").innerHTML =
+      `❌ You're missing ${missing.length} product${
+        missing.length===1?"":"s"
+      }. Go shopping first.`;
+
+    return;
+
+  }
+
+  S.beauty.applied = [...look.products];
+
+  const reward = 35 + look.products.length * 5;
+
+  S.cash += reward;
+
+  S.stars += 2;
+
+  S.looks++;
+
+  log(
+    `💄 Look completed: ${look.title}. +$${reward} and +2 stars.`
+  );
+
+  document.getElementById("beautyMessage").innerHTML =
+    `✨ LOOK COMPLETE! You earned $${reward}.`;
+
+  draw();
+
+}
+
+
+/* ============================================================
+   RESET
+   ============================================================ */
+
+function resetGame(){
+
+  if(!confirm("Restart the game and erase your progress?")) return;
+
+  localStorage.removeItem(SAVE_KEY);
+
+  S = {
+    cash:100,
+    stars:0,
+    orders:0,
+    looks:0,
+    mode:"food",
+
+    food:{
+      order:null,
+      collected:[],
+      time:60
+    },
+
+    beauty:{
+      look:null,
+      shopping:[],
+      applied:[]
+    },
+
+    log:[]
+  };
+
+  newFoodOrder();
+
+  newLook();
+
+  draw();
+
+}
+
+
+/* ============================================================
+   DRAW STATS
+   ============================================================ */
+
+function drawStats(){
+
+  document.getElementById("stats").innerHTML = `
+
+    <div class="stat">
+      <b>$${S.cash}</b>
+      <span>Cash</span>
+    </div>
+
+    <div class="stat">
+      <b>⭐ ${S.stars}</b>
+      <span>Stars</span>
+    </div>
+
+    <div class="stat">
+      <b>${S.orders}</b>
+      <span>Orders</span>
+    </div>
+
+    <div class="stat">
+      <b>${S.looks}</b>
+      <span>Looks</span>
+    </div>
+
+  `;
+
+}
+
+
+/* ============================================================
+   DRAW FOOD
+   ============================================================ */
+
+function drawFood(){
+
+  const order = S.food.order;
+
+  if(!order) return;
+
+  let orderText = "";
+
+  if(order.fries){
+    orderText += "🍟 Fries ";
+  }
+
+  if(order.nuggets){
+    orderText += "🍗 Nuggets ";
+  }
+
+  if(order.burger.length){
+    orderText += "🍔 Burger ";
+  }
+
+  if(order.drink){
+    orderText += order.drink==="cola"
+      ? "🥤 Cola"
+      : "💧 Water";
+  }
+
+  document.getElementById("foodOrder").textContent =
+    order.name;
+
+  document.getElementById("foodInstructions").textContent =
+    orderText;
+
+  document.getElementById("foodTime").textContent =
+    S.food.time + " sec";
+
+  document.getElementById("foodTimer").style.width =
+    Math.max(0,S.food.time/60*100) + "%";
+
+
+  const items = Object.keys(FOOD_ITEMS);
+
+  document.getElementById("foodItems").innerHTML =
+    items.map(id=>{
+
+      const item = FOOD_ITEMS[id];
+
+      const collected =
+        countCollected(id);
+
+      const needed =
+        hasRequiredFood(id);
+
+      return `
+
+        <button
+          class="item ${collected?'done':''}"
+          onclick="collectFood('${id}')"
+          ${needed?'':'disabled'}
+        >
+
+          <span class="item-icon">${item.icon}</span>
+
+          <span class="item-name">
+            ${item.name}
+          </span>
+
+          <span class="item-small">
+            ${collected ? "Collected ✓" : "Collect"}
+          </span>
+
+        </button>
+
+      `;
+
+    }).join("");
+
+
+  const friesCount =
+    countCollected("fries");
+
+  const nuggetCount =
+    countCollected("nuggets");
+
+  document.getElementById("friesBox").innerHTML =
+    friesCount
+      ? `<div class="layer">🍟 Fries × ${friesCount}</div>`
+      : `<div class="sub">Collect fries</div>`;
+
+
+  document.getElementById("nuggetBox").innerHTML =
+    nuggetCount
+      ? `<div class="layer">🍗 Nuggets × ${nuggetCount}</div>`
+      : `<div class="sub">Collect nuggets</div>`;
+
+
+  document.getElementById("burgerBox").innerHTML =
+    order.burger.map(id=>{
+
+      const item = FOOD_ITEMS[id];
+
+      const have =
+        countCollected(id)>0;
+
+      return `
+
+        <div class="layer">
+          ${have ? item.icon : "⬜"}
+          ${item.name}
+        </div>
+
+      `;
+
+    }).join("");
+
+
+  if(order.drink){
+
+    const drink =
+      FOOD_ITEMS[order.drink];
+
+    const have =
+      countCollected(order.drink)>0;
+
+    document.getElementById("drinkBox").innerHTML = `
+
+      <div class="layer">
+        ${have ? drink.icon : "⬜"}
+        ${drink.name}
+      </div>
+
+    `;
+
+  }
+
+
+  document.getElementById("serveBtn").disabled =
+    !canServeFood();
+
+}
+
+
+function canServeFood(){
+
+  const order = S.food.order;
+
+  if(order.fries && !countCollected("fries"))
+    return false;
+
+  if(order.nuggets && !countCollected("nuggets"))
+    return false;
+
+  for(const id of order.burger){
+
+    if(!countCollected(id))
+      return false;
+
+  }
+
+  if(order.drink &&
+     !countCollected(order.drink))
+    return false;
+
+  return true;
+
+}
+
+
+/* ============================================================
+   DRAW BEAUTY
+   ============================================================ */
+
+function drawBeauty(){
+
+  const look = S.beauty.look;
+
+  if(!look) return;
+
+
+  document.getElementById("lookPhoto").innerHTML =
+    look.emoji;
+
+  document.getElementById("lookTitle").textContent =
+    look.title;
+
+  document.getElementById("lookMeta").textContent =
+    `${look.products.length} products • Hair + Makeup`;
+
+  document.getElementById("lookDescription").textContent =
+    look.description;
+
+
+  document.getElementById("shoppingList").innerHTML =
+    look.products.map(id=>{
+
+      const p = PRODUCTS[id];
+
+      const bought =
+        S.beauty.shopping.includes(id);
+
+      return `
+
+        <div
+          style="
+            padding:8px 0;
+            border-bottom:1px solid var(--bd);
+          "
+        >
+
+          ${bought ? "✅" : "⬜"}
+          ${p.icon}
+          <b>${p.name}</b>
+
+          <span
+            class="tag"
+            style="float:right"
+          >
+            $${p.price}
+          </span>
+
+        </div>
+
+      `;
+
+    }).join("");
+
+
+  document.getElementById("products").innerHTML =
+    Object.keys(PRODUCTS).map(id=>{
+
+      const p = PRODUCTS[id];
+
+      const owned =
+        S.beauty.shopping.includes(id);
+
+      const needed =
+        look.products.includes(id);
+
+      return `
+
+        <button
+          class="
+            product
+            ${owned?'owned':''}
+            ${needed?'selected':''}
+          "
+          onclick="buyBeauty('${id}')"
+          ${owned?'disabled':''}
+        >
+
+          <div class="product-icon">
+            ${p.icon}
+          </div>
+
+          <h3>${p.name}</h3>
+
+          <p>${p.category}</p>
+
+          <span class="price">
+            ${owned ? "OWNED ✓" : "$"+p.price}
+          </span>
+
+        </button>
+
+      `;
+
+    }).join("");
+
+
+  document.getElementById("applied").innerHTML =
+    S.beauty.applied.length
+
+      ? S.beauty.applied.map(id=>{
+
+          const p = PRODUCTS[id];
+
+          return `
+            <div>
+              ${p.icon} ${p.name}
+              <b style="float:right">✓</b>
+            </div>
+          `;
+
+        }).join("")
+
+      : `
+        <div class="sub">
+          Nothing applied yet.
+        </div>
+      `;
+
+
+  const missing =
+    look.products.filter(
+      id=>!S.beauty.shopping.includes(id)
+    );
+
+  document.getElementById("applyBtn").disabled =
+    missing.length > 0;
+
+}
+
+
+/* ============================================================
+   DRAW LOG
+   ============================================================ */
+
+function drawLog(){
+
+  document.getElementById("log").innerHTML =
+    S.log.map(x=>`<div>${x}</div>`).join("");
+
+}
+
+
+/* ============================================================
+   MAIN DRAW
+   ============================================================ */
+
+function draw(){
+
+  save();
+
+  drawStats();
+
+  drawFood();
+
+  drawBeauty();
+
+  drawLog();
+
+}
+
+
+/* ============================================================
+   START
+   ============================================================ */
+
+load();
+
+</script>
+
+  <script src="intro.js"></script>
+</body>
+</html>
