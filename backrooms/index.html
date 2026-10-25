@@ -24,8 +24,45 @@ html,body {
 }
 button { font:inherit;cursor:pointer; }
 #game {
-  display:block;width:100%;height:100%;
-  position:absolute;inset:0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+#overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 22px;
+  background: #070704bd;
+  pointer-events: auto;
+}
+
+#panel,
+#panel button {
+  position: relative;
+  pointer-events: auto;
+}
+
+#hud {
+  z-index: 10;
+}
+
+#touchControls {
+  z-index: 10;
+}
+
+#message,
+#objective,
+#hint {
+  z-index: 5;
 }
 #hud {
   position:absolute;top:0;left:0;right:0;
@@ -1183,7 +1220,89 @@ function loop(now) {
 /* ------------------------------------------------------------------
    INPUT
 ------------------------------------------------------------------- */
-$("startBtn").onclick=newGame;
+
+/* BUTTONS AND TOUCH INPUT */
+function bindButton(id, callback) {
+  const button = $(id);
+
+  if (!button) {
+    console.error("Missing game button:", id);
+    return;
+  }
+
+  button.type = "button";
+  button.addEventListener("click", event => {
+    event.preventDefault();
+    callback();
+  });
+}
+
+bindButton("startBtn", newGame);
+bindButton("controlsBtn", showControls);
+bindButton("pauseBtn", pauseGame);
+bindButton("lightBtn", toggleLight);
+bindButton("interactBtn", interact);
+
+/* Hold-to-run and look-back controls */
+function bindHold(id, onPress, onRelease) {
+  const button = $(id);
+  if (!button) return;
+
+  button.type = "button";
+
+  button.addEventListener("pointerdown", event => {
+    event.preventDefault();
+    onPress();
+  });
+
+  ["pointerup", "pointercancel", "lostpointercapture"].forEach(type => {
+    button.addEventListener(type, onRelease);
+  });
+
+  button.addEventListener("contextmenu", event => {
+    event.preventDefault();
+  });
+}
+
+bindHold("runBtn", () => {
+  move.run = true;
+}, () => {
+  move.run = false;
+});
+
+bindHold("lookBtn", () => {
+  lookBack = true;
+}, () => {
+  lookBack = false;
+});
+
+/* Directional pad */
+document.querySelectorAll("[data-move]").forEach(button => {
+  const direction = button.dataset.move;
+  button.type = "button";
+
+  button.addEventListener("pointerdown", event => {
+    event.preventDefault();
+    move[direction] = true;
+
+    try {
+      button.setPointerCapture(event.pointerId);
+    } catch (error) {
+      // Continue without pointer capture if unsupported.
+    }
+  });
+
+  ["pointerup", "pointercancel", "lostpointercapture"].forEach(type => {
+    button.addEventListener(type, () => {
+      move[direction] = false;
+    });
+  });
+
+  button.addEventListener("contextmenu", event => {
+    event.preventDefault();
+  });
+});
+
 $("controlsBtn").onclick=showControls;
 $("pauseBtn").onclick=pauseGame;
 $("lightBtn").onclick=toggleLight;
