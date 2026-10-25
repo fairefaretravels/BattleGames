@@ -73,6 +73,20 @@ p{line-height:1.65;color:#d2cfb9;font-size:14px}
 <div id="overlay"><div class="panel" id="panel"></div></div>
 
 <script>
+/* On-screen error reporter (phones have no console). */
+(function(){
+  function show(t){
+    var b=document.getElementById("errbox");
+    if(!b){b=document.createElement("div");b.id="errbox";
+      b.style.cssText="position:fixed;left:0;right:0;bottom:0;z-index:99;background:#a00;color:#fff;font:11px/1.4 monospace;padding:8px;max-height:40%;overflow:auto;white-space:pre-wrap";
+      document.body.appendChild(b);}
+    b.textContent+=t+"\n";
+  }
+  window.addEventListener("error",function(e){show("ERROR: "+e.message+" (line "+e.lineno+")");});
+  window.addEventListener("unhandledrejection",function(e){show("PROMISE: "+e.reason);});
+})();
+</script>
+<script>
 (() => {
 "use strict";
 
