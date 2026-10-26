@@ -102,19 +102,22 @@ canvas{display:block;width:100%;height:100%}
 (()=>{'use strict';
 /* ---------- Fighter sprite sheets ----------
    Each file is a transparent sheet, 6 columns x 9 rows of 300x200 cells.
-   Put Dia.PNG, Bonnie.PNG and Rex.PNG in the same folder as this page. */
+   Put Dia.PNG, Bonnie.PNG, Rex.PNG, Beeper.PNG, Skylar.PNG and Sen.PNG in the same folder as this page. */
 const CW=300,CH=200,AX=115,SPR_SCALE=.95;
 const ORDER=['idle','walk','jump','punch','kick','block','hit','special','win'];
 const CHARS={
  DIA:{file:'Dia.PNG',color:'#c77dff',bright:1.45,frames:{idle:6,walk:6,jump:6,punch:5,kick:6,block:4,hit:5,special:5,win:2}},
  BONNIE:{file:'Bonnie.PNG',color:'#a78bfa',frames:{idle:6,walk:6,jump:6,punch:6,kick:6,block:3,hit:3,special:6,win:4}},
- REX:{file:'Rex.PNG',color:'#ff4d4d',frames:{idle:6,walk:6,jump:6,punch:3,kick:4,block:4,hit:4,special:5,win:2}}
+ REX:{file:'Rex.PNG',color:'#ff4d4d',frames:{idle:6,walk:6,jump:6,punch:3,kick:4,block:4,hit:4,special:5,win:2}},
+ BEEPER:{file:'Beeper.PNG',color:'#ff7ad9',frames:{idle:4,walk:6,jump:4,punch:3,kick:3,block:1,hit:4,special:4,win:3}},
+ SKYLAR:{file:'Skylar.PNG',color:'#9d7bff',frames:{idle:5,walk:6,jump:6,punch:5,kick:6,block:1,hit:5,special:5,win:2}},
+ SEN:{file:'Sen.PNG',color:'#ffd35a',frames:{idle:4,walk:6,jump:4,punch:3,kick:3,block:1,hit:4,special:4,win:3}}
 };
 const KEYS=Object.keys(CHARS);
 const FPS={idle:7,walk:12,block:6,win:4};
 let loadedCount=0;
 for(const k of KEYS){const c=CHARS[k];c.ok=false;c.image=new Image();c.image.onload=()=>{c.ok=c.image.naturalWidth>=CW*6;loadedCount++;statusText();buildPicker()};c.image.onerror=()=>{loadedCount++;statusText()};c.image.src=c.file}
-function statusText(){const ok=KEYS.filter(k=>CHARS[k].ok).length;$('imageStatus').textContent=loadedCount<KEYS.length?'Loading fighters…':ok===KEYS.length?'All 3 fighters loaded.':'Missing sheets: '+KEYS.filter(k=>!CHARS[k].ok).map(k=>CHARS[k].file).join(', ')+' — placeholder fighters used.'}
+function statusText(){const ok=KEYS.filter(k=>CHARS[k].ok).length;$('imageStatus').textContent=loadedCount<KEYS.length?'Loading fighters…':ok===KEYS.length?'All '+KEYS.length+' fighters loaded.':'Missing sheets: '+KEYS.filter(k=>!CHARS[k].ok).map(k=>CHARS[k].file).join(', ')+' — placeholder fighters used.'}
 
 const canvas=document.getElementById('game'),ctx=canvas.getContext('2d'),stage=document.getElementById('stage');
 let W=800,H=400,dpr=1;
@@ -166,7 +169,10 @@ if(f.dodge>0){ctx.globalAlpha=.55;ctx.translate(-f.face*13,4)}
 const bob=(f.act==='idle'&&!f.char)?Math.sin(now/220)*2:f.act==='walk'?Math.sin(now/65)*2:0;ctx.translate(0,bob);ctx.scale(scale,scale);
 ctx.globalAlpha*=.65;ctx.fillStyle='#05040a';ctx.beginPath();ctx.ellipse(0,2,31,7,0,0,Math.PI*2);ctx.fill();ctx.globalAlpha=f.flash>0?.65:1;
 const c=f.char&&CHARS[f.char];
-if(c&&c.ok){const anim=selectedAnimation(f),frames=c.frames[anim]||1,fi=Math.min(frames-1,frameFor(f,anim,frames,now));if(c.bright&&'filter'in ctx)ctx.filter='brightness('+c.bright+')';drawSprite(c,anim,fi,SPR_SCALE);ctx.filter='none';ctx.restore();return}
+if(c&&c.ok){const anim=selectedAnimation(f);let frames=c.frames[anim]||1;
+ /* a normal hit uses the flinch frames only; the last hit frame is the knocked-out pose */
+ if(anim==='hit'&&!f.ko&&frames>2)frames--;
+ const fi=Math.min(frames-1,frameFor(f,anim,frames,now));if(c.bright&&'filter'in ctx)ctx.filter='brightness('+c.bright+')';drawSprite(c,anim,fi,SPR_SCALE);ctx.filter='none';ctx.restore();return}
 // Placeholder artwork (used only if a sprite sheet is missing)
 const punch=['punch','special'].includes(f.act),kick=f.act==='kick',block=f.block||f.act==='block',hurt=f.act==='hit',lean=punch?7:kick?4:hurt?-7:0;
 ctx.lineCap='round';ctx.lineJoin='round';ctx.strokeStyle=f.pants;ctx.lineWidth=13;ctx.beginPath();ctx.moveTo(-7,-39);ctx.lineTo(kick?19:-13,-14);ctx.lineTo(kick?31:-17,-5);ctx.stroke();ctx.beginPath();ctx.moveTo(7,-39);ctx.lineTo(kick?-13:13,-14);ctx.lineTo(kick?-24:17,-5);ctx.stroke();
