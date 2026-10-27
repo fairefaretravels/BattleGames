@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEVERLAND: THE UNDERGROUND — RPG</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Playfair+Display:ital,wght@0,700;0,900;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --gold:#c8a96e;
+  --gold-dim:rgba(200,169,110,0.3);
+  --dark:#0a0806;
+  --dark2:#111;
+  --dark3:#1a1612;
+  --cream:#f5f0e8;
+  --red:#e8002d;
+  --panel-border:1px solid rgba(200,169,110,0.25);
+}
+body{background:transparent;font-family:'DM Sans',sans-serif;color:var(--cream);}
+
+/* SCREENS */
+.screen{display:none;}
+.screen.active{display:block;}
+
+/* TITLE */
+#title-screen{background:var(--dark);min-height:520px;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2rem;border-radius:8px;}
+#title-screen.active{display:flex;}
+.title-eyebrow{font-size:9px;letter-spacing:5px;text-transform:uppercase;color:var(--gold);margin-bottom:1rem;opacity:.7;}
+.title-main{font-family:'Oswald',sans-serif;font-size:clamp(3rem,10vw,5.5rem);font-weight:700;letter-spacing:6px;color:#fff;line-height:.9;text-transform:uppercase;}
+.title-sub{font-family:'Playfair Display',serif;font-style:italic;font-size:1.1rem;color:rgba(200,169,110,.7);margin-top:.75rem;}
+.title-tagline{font-size:11px;letter-spacing:3px;color:rgba(255,255,255,.3);margin-top:1.5rem;text-transform:uppercase;}
+.title-btn{background:var(--gold);color:#000;border:none;padding:12px 36px;font-family:'Oswald',sans-serif;font-size:14px;font-weight:700;letter-spacing:3px;text-transform:uppercase;cursor:pointer;border-radius:3px;margin-top:2rem;transition:background .2s;}
+.title-btn:hover{background:#d4b87a;}
+.title-border{width:60px;height:2px;background:var(--gold);margin:1.25rem auto 0;}
+
+/* CHARACTER SELECT */
+#char-screen{background:var(--dark);min-height:520px;padding:1.5rem;border-radius:8px;display:none;}
+#char-screen.active{display:block;}
+.char-header{text-align:center;margin-bottom:1.5rem;}
+.char-header h2{font-family:'Oswald',sans-serif;font-size:1.2rem;letter-spacing:4px;color:var(--gold);text-transform:uppercase;}
+.char-header p{font-size:11px;color:rgba(255,255,255,.4);margin-top:.3rem;letter-spacing:1px;}
+.char-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.75rem;}
+.char-card{background:var(--dark3);border:1px solid rgba(200,169,110,.2);border-radius:6px;padding:1rem;cursor:pointer;transition:border-color .2s,background .2s;text-align:center;}
+.char-card:hover,.char-card.selected{border-color:var(--gold);background:rgba(200,169,110,.08);}
+.char-avatar{width:52px;height:52px;border-radius:50%;background:rgba(200,169,110,.15);border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;margin:0 auto .75rem;font-family:'Oswald',sans-serif;font-size:1.1rem;color:var(--gold);}
+.char-name{font-family:'Oswald',sans-serif;font-size:.95rem;letter-spacing:2px;color:#fff;text-transform:uppercase;}
+.char-role{font-size:9px;letter-spacing:2px;color:rgba(200,169,110,.6);text-transform:uppercase;margin-top:.2rem;}
+.char-desc{font-size:10px;line-height:1.5;color:rgba(255,255,255,.45);margin-top:.6rem;}
+.stat-row{display:flex;justify-content:space-between;margin-top:.75rem;}
+.stat-mini{text-align:center;}
+.stat-mini-label{font-size:7px;letter-spacing:1px;text-transform:uppercase;color:rgba(200,169,110,.5);}
+.stat-mini-val{font-family:'Oswald',sans-serif;font-size:.9rem;color:var(--gold);}
+.char-select-btn{margin-top:.75rem;width:100%;background:transparent;border:1px solid var(--gold);color:var(--gold);padding:5px;font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border-radius:2px;transition:all .2s;}
+.char-select-btn:hover{background:var(--gold);color:#000;}
+
+/* GAME SCREEN */
+#game-screen{background:var(--dark);min-height:520px;border-radius:8px;display:none;flex-direction:column;}
+#game-screen.active{display:flex;}
+
+.game-header{background:var(--dark2);border-bottom:var(--panel-border);padding:.6rem 1rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem;}
+.game-title{font-family:'Oswald',sans-serif;font-size:.85rem;letter-spacing:3px;color:var(--gold);text-transform:uppercase;}
+.game-location{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.35);}
+
+.stats-bar{background:var(--dark3);border-bottom:var(--panel-border);padding:.5rem 1rem;display:flex;gap:1rem;flex-wrap:wrap;align-items:center;}
+.stat-pill{display:flex;align-items:center;gap:.35rem;}
+.stat-label{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:rgba(200,169,110,.5);}
+.stat-val{font-family:'Oswald',sans-serif;font-size:.8rem;color:var(--gold);}
+.hp-bar{display:flex;align-items:center;gap:.4rem;margin-left:auto;}
+.hp-label{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.35);}
+.hp-track{width:80px;height:4px;background:rgba(255,255,255,.1);border-radius:2px;}
+.hp-fill{height:100%;background:var(--gold);border-radius:2px;transition:width .3s;}
+.soul-fill{background:#e8002d;}
+
+.game-main{display:grid;grid-template-columns:1fr 3fr;flex:1;min-height:0;}
+
+/* LEFT: character panel */
+.char-panel{background:var(--dark2);border-right:var(--panel-border);padding:.75rem;display:flex;flex-direction:column;gap:.75rem;}
+.char-panel-name{font-family:'Oswald',sans-serif;font-size:.8rem;letter-spacing:2px;color:#fff;text-transform:uppercase;}
+.char-panel-role{font-size:8px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;}
+.stat-block{margin-top:.25rem;}
+.stat-line{display:flex;justify-content:space-between;align-items:center;margin-bottom:.35rem;}
+.stat-line-label{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.4);}
+.stat-line-track{flex:1;height:3px;background:rgba(255,255,255,.08);margin:0 .5rem;border-radius:2px;}
+.stat-line-fill{height:100%;border-radius:2px;background:var(--gold);}
+.stat-line-num{font-family:'Oswald',sans-serif;font-size:.75rem;color:var(--gold);min-width:18px;text-align:right;}
+.panel-divider{height:1px;background:rgba(200,169,110,.15);}
+.inventory-label{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:rgba(200,169,110,.5);}
+.inventory-list{list-style:none;margin-top:.35rem;}
+.inventory-list li{font-size:10px;color:rgba(255,255,255,.5);padding:.2rem 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.ability-label{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:rgba(200,169,110,.5);margin-top:.25rem;}
+.ability-item{font-size:10px;color:var(--gold);padding:.25rem 0;border-bottom:1px solid rgba(200,169,110,.08);}
+.ability-item span{color:rgba(255,255,255,.4);font-size:9px;display:block;}
+
+/* RIGHT: story + controls */
+.story-panel{display:flex;flex-direction:column;flex:1;min-height:0;}
+.story-output{flex:1;overflow-y:auto;padding:.75rem 1rem;min-height:240px;max-height:320px;}
+.dm-message{background:var(--dark3);border-left:3px solid var(--gold);border-radius:0 4px 4px 0;padding:.75rem 1rem;margin-bottom:.75rem;}
+.dm-location{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:.4rem;opacity:.7;}
+.dm-text{font-family:'Playfair Display',serif;font-size:13px;line-height:1.75;color:rgba(255,255,255,.85);}
+.player-message{background:rgba(200,169,110,.06);border-left:3px solid rgba(200,169,110,.3);border-radius:0 4px 4px 0;padding:.5rem .75rem;margin-bottom:.75rem;}
+.player-text{font-size:12px;color:rgba(255,255,255,.5);font-style:italic;}
+.roll-result{background:rgba(232,0,45,.1);border:1px solid rgba(232,0,45,.3);border-radius:4px;padding:.5rem .75rem;margin-bottom:.75rem;text-align:center;}
+.roll-result .roll-num{font-family:'Oswald',sans-serif;font-size:1.5rem;color:#e8002d;}
+.roll-result .roll-label{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(232,0,45,.6);}
+.typing-indicator{padding:.5rem 1rem;display:none;}
+.typing-dot{width:6px;height:6px;background:var(--gold);border-radius:50%;display:inline-block;animation:bounce .8s infinite;margin-right:3px;}
+.typing-dot:nth-child(2){animation-delay:.15s;}
+.typing-dot:nth-child(3){animation-delay:.3s;}
+@keyframes bounce{0%,80%,100%{transform:translateY(0);}40%{transform:translateY(-6px);}}
+
+/* CHOICES */
+.choices-area{padding:.5rem .75rem;border-top:var(--panel-border);background:var(--dark2);}
+.choices-label{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:rgba(200,169,110,.4);margin-bottom:.4rem;}
+.choice-btns{display:flex;flex-direction:column;gap:.3rem;}
+.choice-btn{background:transparent;border:1px solid rgba(200,169,110,.2);color:rgba(255,255,255,.7);padding:.5rem .75rem;font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer;border-radius:3px;text-align:left;transition:all .2s;}
+.choice-btn:hover{border-color:var(--gold);color:#fff;background:rgba(200,169,110,.06);}
+
+/* DICE + VOICE */
+.dice-voice-row{padding:.5rem .75rem;border-top:var(--panel-border);background:var(--dark3);display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;}
+.dice-label{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:rgba(200,169,110,.4);}
+.die-btn{background:var(--dark2);border:1px solid rgba(200,169,110,.3);color:var(--gold);padding:4px 8px;font-family:'Oswald',sans-serif;font-size:11px;cursor:pointer;border-radius:3px;transition:all .2s;min-width:32px;text-align:center;}
+.die-btn:hover{background:var(--gold);color:#000;}
+.die-btn.rolled{border-color:#e8002d;color:#e8002d;}
+.dice-result{font-family:'Oswald',sans-serif;font-size:.9rem;color:var(--gold);min-width:24px;}
+.voice-btn{margin-left:auto;background:transparent;border:1px solid rgba(200,169,110,.3);color:rgba(200,169,110,.6);padding:4px 10px;font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;border-radius:3px;transition:all .2s;}
+.voice-btn:hover{border-color:var(--gold);color:var(--gold);}
+.voice-btn.speaking{border-color:#e8002d;color:#e8002d;animation:pulse-border 1s infinite;}
+@keyframes pulse-border{0%,100%{border-color:rgba(232,0,45,.4);}50%{border-color:#e8002d;}}
+
+/* INPUT */
+.input-row{padding:.5rem .75rem;border-top:var(--panel-border);background:var(--dark2);display:flex;gap:.5rem;}
+.game-input{flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(200,169,110,.2);color:#fff;padding:.5rem .75rem;font-family:'DM Sans',sans-serif;font-size:12px;border-radius:3px;outline:none;}
+.game-input:focus{border-color:var(--gold);}
+.game-input::placeholder{color:rgba(255,255,255,.2);}
+.send-btn{background:var(--gold);color:#000;border:none;padding:.5rem 1rem;font-family:'Oswald',sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border-radius:3px;transition:background .2s;}
+.send-btn:hover{background:#d4b87a;}
+.send-btn:disabled{opacity:.4;cursor:default;}
+
+@media(max-width:600px){
+  .game-main{grid-template-columns:1fr;}
+  .char-panel{display:none;}
+  .title-main{font-size:2.5rem;}
+}
+</style>
+</head>
+<body>
+
+<!-- TITLE SCREEN -->
+<div id="title-screen" class="active">
+  <div class="title-eyebrow">Detroit · An Original RPG Adventure</div>
+  <div class="title-main">NEVER<br>LAND</div>
+  <div class="title-sub">The Underground</div>
+  <div class="title-border"></div>
+  <div class="title-tagline">Every fairy tale has a Hook</div>
+  <button class="title-btn" onclick="showCharSelect()">Begin Your Story</button>
+</div>
+
+<!-- CHARACTER SELECT -->
+<div id="char-screen">
+  <div class="char-header">
+    <h2>Choose Your Character</h2>
+    <p>Each path through Neverland is different · Choose wisely</p>
+  </div>
+  <div class="char-grid" id="char-grid"></div>
+</div>
+
+<!-- GAME SCREEN -->
+<div id="game-screen">
+  <div class="game-header">
+    <div>
+      <div class="game-title">Neverland: The Underground</div>
+      <div class="game-location" id="current-location">Belle Isle · Detroit</div>
+    </div>
+    <div style="font-size:9px;letter-spacing:2px;color:rgba(200,169,110,.4);text-transform:uppercase;">Session Active</div>
+  </div>
+
+  <div class="stats-bar" id="stats-bar"></div>
+
+  <div class="game-main">
+    <!-- Left: character info -->
+    <div class="char-panel" id="char-panel"></div>
+
+    <!-- Right: story -->
+    <div class="story-panel">
+      <div class="story-output" id="story-output">
+        <div class="typing-indicator" id="typing">
+          <span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>
+        </div>
+      </div>
+
+      <div class="choices-area" id="choices-area" style="display:none;">
+        <div class="choices-label">Your move</div>
+        <div class="choice-btns" id="choice-btns"></div>
+      </div>
+
+      <div class="dice-voice-row">
+        <span class="dice-label">Roll</span>
+        <button class="die-btn" onclick="rollDie(4)">d4</button>
+        <button class="die-btn" onclick="rollDie(6)">d6</button>
+        <button class="die-btn" onclick="rollDie(8)">d8</button>
+        <button class="die-btn" onclick="rollDie(10)">d10</button>
+        <button class="die-btn" onclick="rollDie(12)">d12</button>
+        <button class="die-btn" id="d20btn" onclick="rollDie(20)">d20</button>
+        <span class="dice-result" id="dice-result">—</span>
+        <button class="voice-btn" id="voice-btn" onclick="toggleVoice()">&#9654; Narrate</button>
+      </div>
+
+      <div class="input-row">
+        <input class="game-input" id="player-input" placeholder="What do you do? Type your action..." onkeydown="if(event.key==='Enter')sendAction()">
+        <button class="send-btn" id="send-btn" onclick="sendAction()">Send</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const CHARACTERS = [
+  {
+    id:'peter',
+    name:'Peter',
+    role:'The One Who Watches',
+    avatar:'P',
+    desc:'Watches the Lost Boys as a sign of hope — not knowing they\'re trapped. Dr. Martens. Diamond glasses. The door nobody saw coming.',
+    stats:{HUSTLE:14,FREQ:12,STEALTH:13,SOUL:15,HEAT:16},
+    hp:18, soul:15,
+    inventory:['Buffalo cardinal glasses','Dr. Martens','Gold chain','Burner phone'],
+    abilities:[
+      {name:'First Flight',desc:'Once per session: reroll any failed check. The city opened a door.'},
+      {name:'Read the Room',desc:'Passive: always knows when Hook\'s men are watching. +3 STEALTH vs Crocodiles.'}
+    ],
+    start:'You\'re on the Belle Isle waterline. The crew is spread across the rocks. The city is burning amber across the river. You\'ve been watching them for three weeks. They look free. Start the game.'
+  },
+  {
+    id:'tink',
+    name:'Tink',
+    role:'Ruler of Waves',
+    avatar:'T',
+    desc:'DJ of the underworld. Ruler of sound, water, and energy. Can transform into a black cat. Already knows who Peter is. Always has.',
+    stats:{HUSTLE:10,FREQ:18,STEALTH:16,SOUL:18,HEAT:14},
+    hp:14, soul:18,
+    inventory:['Detroit beanie','Black leather jacket','Frequency pendant','2x Cat transforms remaining'],
+    abilities:[
+      {name:'Black Cat Form',desc:'Transform: +4 STEALTH, +2 FREQ. Lose speech. 2x per session.'},
+      {name:'Wave Control',desc:'Roll FREQ vs DC 12 to sense intentions in a room before entering.'}
+    ],
+    start:'Studio Noir. Purple neon. The track is almost ready. Windy is at the board. Something in the frequency tonight feels different — like the city is about to shift. Start the game.'
+  },
+  {
+    id:'windy',
+    name:'Windy',
+    role:'The Long Note',
+    avatar:'W',
+    desc:'Honey blonde bob. 1950s bang. Her sustained notes literally bend light, move crowds, and stop Crocodiles in their tracks.',
+    stats:{HUSTLE:11,FREQ:17,STEALTH:12,SOUL:16,HEAT:18},
+    hp:15, soul:16,
+    inventory:['Mic (The Conductor)','Black leather jacket','Black shorts','Honey charm'],
+    abilities:[
+      {name:'The Long Note',desc:'Once per encounter: Roll FREQ vs DC 14. Success stuns enemies. Crit (20) routes Hook\'s Crocodiles.'},
+      {name:'Crowd Control',desc:'+4 HEAT when performing. The room is always yours first.'}
+    ],
+    start:'The cypher circle is forming. Hook\'s men are watching from the tree line. You and Tink have been building to this moment for six months. The mic is warm. Start the game.'
+  },
+  {
+    id:'watcher',
+    name:'The Watcher',
+    role:'Eyes of Neverland',
+    avatar:'W2',
+    display:'W',
+    desc:'Hands always in his jogger pockets. Never misses anything. The first one to see Peter arrive. The one Windy stopped without trying.',
+    stats:{HUSTLE:13,FREQ:11,STEALTH:18,SOUL:14,HEAT:12},
+    hp:16, soul:14,
+    inventory:['Dark hoodie','Joggers','Gold stud (one)','Folded intel'],
+    abilities:[
+      {name:'Already Knew',desc:'Once per scene: reveal one hidden fact about the location or an NPC. You\'ve been watching.'},
+      {name:'Shadow Step',desc:'Roll STEALTH vs DC 8 to move through any crowd undetected.'}
+    ],
+    start:'You\'ve been tracking movement near the east bridge for two nights. Something is changing in Hook\'s pattern. The Lost Boys don\'t know yet. You\'re deciding whether to tell Peter. Start the game.'
+  },
+  {
+    id:'instigator',
+    name:'The Instigator',
+    role:'Heart of the Lost Boys',
+    avatar:'I',
+    desc:'Big grin. Loud energy. Gold chain swinging. The one who makes everything happen whether it should or not. The crew\'s heartbeat.',
+    stats:{HUSTLE:16,FREQ:12,STEALTH:10,SOUL:13,HEAT:17},
+    hp:20, soul:13,
+    inventory:['Puffer jacket','Red & black Jordans','Gold rope chain','Phone (always recording)'],
+    abilities:[
+      {name:'There He Is',desc:'Once per session: instantly rally the Lost Boys. +3 to all crew checks for 3 rounds.'},
+      {name:'Make It Loud',desc:'Roll HEAT vs DC 10 to create a distraction large enough to draw Crocodiles away.'}
+    ],
+    start:'Belle Isle. Late. The crew is doing what the crew does — existing louder than the city wants them to. You just heard something in the park. It sounds like fire. Start the game.'
+  }
+];
+
+const DM_PROMPT = `You are the Dungeon Master for NEVERLAND: THE UNDERGROUND — a gritty Detroit urban fantasy RPG set in the world of an original graphic novel. Your tone is cinematic noir: vivid, atmospheric, street-level, emotionally resonant.
+
+THE WORLD:
+Belle Isle is an island in Detroit. One bridge in, one bridge out. Hook runs Neverland — not with violence as a first resort, but with debt, obligation, and souls. He built a paradise with one door on it. The Lost Boys think they chose Neverland. Hook knows they never left.
+
+THE MISSION:
+Peter, Tink (Seneca), and Windy (Liah Lazer) want to take back the music — the sound waves, the culture, the frequency that makes people feel like Belle Isle belongs to them. Whoever controls the waves controls the room. Hook has been running Neverland by controlling what people love. They want to take that back. He won't give it up. He never wanted territory. He wanted souls. All they wanted was respect.
+
+KEY CHARACTERS:
+PETER — Young Black man. Dr. Martens. Buffalo cardinal frameless glasses with diamond nose bridge. Natural leader. Watches the Lost Boys as a sign of hope without knowing they're trapped. HUSTLE 14, FREQ 12, STEALTH 13, SOUL 15, HEAT 16.
+TINK (Seneca) — Ruler of waves: sound, water, energy. Detroit beanie, black leather. Can become a black cat. DJ of the underworld. Already knows who Peter is. HUSTLE 10, FREQ 18, STEALTH 16, SOUL 18, HEAT 14.
+WINDY (Liah Lazer) — Honey blonde bob, 1950s bang, black leather, black shorts. Long soulful notes that literally bend light and stop crowds. The Switchblades with Tink. HUSTLE 11, FREQ 17, STEALTH 12, SOUL 16, HEAT 18.
+THE WATCHER — Hands always in jogger pockets. Sees everything before it happens. The one Windy undid without trying. HUSTLE 13, FREQ 11, STEALTH 18, SOUL 14, HEAT 12.
+THE INSTIGATOR — Big grin, loud energy, gold chain, always recording. The heart of the Lost Boys. Makes things happen. HUSTLE 16, FREQ 12, STEALTH 10, SOUL 13, HEAT 17.
+HOOK — Tall, long coat, one hook hand. Creates debt, not fear. "By the time you understand what he is, you already owe him something." His soldiers are CROCODILES.
+WENDY — Not related to Peter. They share a way of seeing the city nobody taught them. She documents what Detroit is doing to its children. Independent. Essential.
+
+MECHANICS:
+- D&D d20 system. DC 8 easy, DC 12 medium, DC 16 hard, DC 20 legendary.
+- When a player attempts something risky, say: "Roll your [STAT] — DC [number]" then wait.
+- When they report their roll, narrate the outcome dramatically based on success or failure.
+- Track damage mentally. Characters start with listed HP and Soul. Soul damage comes from Hook's influence.
+- SOUND IS POWER: High FREQ characters can manipulate crowds, sense intentions, create sonic barriers.
+- TINK'S BLACK CAT FORM: +4 STEALTH +2 FREQ but loses speech. 2x per session max.
+- WINDY'S LONG NOTE: Once per encounter. FREQ vs DC 14. Success stuns. Crit (20) routes Crocodiles.
+
+FORMAT RULES — FOLLOW EXACTLY:
+- Start every response with [LOCATION] on its own line, like: [BELLE ISLE WATERLINE]
+- Keep responses 150-200 words. No more.
+- End with EITHER: numbered choices (1. / 2. / 3.) OR a dice roll request in bold like **Roll your STEALTH — DC 12**
+- Use vivid Detroit imagery. Belle Isle rocks. The Ambassador Bridge. Coney Island diners. The river.
+- Make Hook feel present even when he's not in the scene. He's always watching.
+- NEVER break character. NEVER explain you're an AI.
+- Weave in the tagline "Every fairy tale has a Hook" when the moment earns it.`;
+
+let gameState = {
+  character: null,
+  messages: [],
+  hp: 0,
+  soul: 0,
+  location: 'Belle Isle · Detroit',
+  speaking: false,
+  currentDMText: ''
+};
+
+function showCharSelect(){
+  document.getElementById('title-screen').classList.remove('active');
+  document.getElementById('title-screen').style.display='none';
+  const cs = document.getElementById('char-screen');
+  cs.style.display='block';
+  renderCharGrid();
+}
+
+function renderCharGrid(){
+  const grid = document.getElementById('char-grid');
+  grid.innerHTML = CHARACTERS.map((c,i)=>`
+    <div class="char-card" id="card-${c.id}" onclick="selectChar('${c.id}')">
+      <div class="char-avatar">${c.display||c.avatar}</div>
+      <div class="char-name">${c.name}</div>
+      <div class="char-role">${c.role}</div>
+      <div class="char-desc">${c.desc}</div>
+      <div class="stat-row">
+        ${Object.entries(c.stats).map(([k,v])=>`
+          <div class="stat-mini">
+            <div class="stat-mini-label">${k}</div>
+            <div class="stat-mini-val">${v}</div>
+          </div>
+        `).join('')}
+      </div>
+      <button class="char-select-btn">Choose ${c.name}</button>
+    </div>
+  `).join('');
+}
+
+function selectChar(id){
+  document.querySelectorAll('.char-card').forEach(c=>c.classList.remove('selected'));
+  document.getElementById('card-'+id).classList.add('selected');
+  const char = CHARACTERS.find(c=>c.id===id);
+  gameState.character = char;
+  gameState.hp = char.hp;
+  gameState.soul = char.soul;
+  setTimeout(()=>startGame(char), 400);
+}
+
+function startGame(char){
+  document.getElementById('char-screen').style.display='none';
+  const gs = document.getElementById('game-screen');
+  gs.style.display='flex';
+  gs.classList.add('active');
+  renderStatsBar(char);
+  renderCharPanel(char);
+  callDM([{role:'user',content:char.start}]);
+}
+
+function renderStatsBar(char){
+  const bar = document.getElementById('stats-bar');
+  const hpPct = Math.round((char.hp/char.hp)*100);
+  const soulPct = Math.round((char.soul/char.soul)*100);
+  bar.innerHTML = `
+    ${Object.entries(char.stats).map(([k,v])=>`
+      <div class="stat-pill">
+        <span class="stat-label">${k}</span>
+        <span class="stat-val">${v}</span>
+      </div>
+    `).join('')}
+    <div class="hp-bar">
+      <span class="hp-label">HP</span>
+      <div class="hp-track"><div class="hp-fill" id="hp-fill" style="width:${hpPct}%"></div></div>
+      <span class="stat-val" id="hp-val">${char.hp}</span>
+    </div>
+    <div class="hp-bar">
+      <span class="hp-label">SOUL</span>
+      <div class="hp-track"><div class="hp-fill soul-fill" id="soul-fill" style="width:${soulPct}%"></div></div>
+      <span class="stat-val" id="soul-val">${char.soul}</span>
+    </div>
+  `;
+}
+
+function renderCharPanel(char){
+  const panel = document.getElementById('char-panel');
+  panel.innerHTML = `
+    <div class="char-avatar" style="width:44px;height:44px;border-radius:50%;background:rgba(200,169,110,.15);border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-family:Oswald,sans-serif;font-size:1rem;color:var(--gold);margin-bottom:.5rem;">${char.display||char.avatar}</div>
+    <div class="char-panel-name">${char.name}</div>
+    <div class="char-panel-role">${char.role}</div>
+    <div class="stat-block">
+      ${Object.entries(char.stats).map(([k,v])=>`
+        <div class="stat-line">
+          <span class="stat-line-label">${k}</span>
+          <div class="stat-line-track"><div class="stat-line-fill" style="width:${Math.round((v/20)*100)}%"></div></div>
+          <span class="stat-line-num">${v}</span>
+        </div>
+      `).join('')}
+    </div>
+    <div class="panel-divider"></div>
+    <div class="inventory-label">Inventory</div>
+    <ul class="inventory-list">
+      ${char.inventory.map(i=>`<li>${i}</li>`).join('')}
+    </ul>
+    <div class="panel-divider"></div>
+    <div class="ability-label">Abilities</div>
+    ${char.abilities.map(a=>`
+      <div class="ability-item">${a.name}<span>${a.desc}</span></div>
+    `).join('')}
+  `;
+}
+
+async function callDM(msgs){
+  setTyping(true);
+  setInputDisabled(true);
+  const allMsgs = [...gameState.messages, ...msgs];
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        system:DM_PROMPT,
+        messages:allMsgs
+      })
+    });
+    const data = await res.json();
+    const dmText = data.content[0].text;
+    gameState.messages = [...allMsgs, {role:'assistant',content:dmText}];
+    gameState.currentDMText = dmText;
+    setTyping(false);
+    renderDMMessage(dmText);
+    extractChoices(dmText);
+    updateLocation(dmText);
+  } catch(e){
+    setTyping(false);
+    renderDMMessage('[BELLE ISLE]\n\nThe signal drops. The city goes quiet for a moment. Then it comes back.\n\n1. Try again\n2. Hold your position\n3. Move to higher ground');
+  }
+  setInputDisabled(false);
+}
+
+function renderDMMessage(text){
+  const output = document.getElementById('story-output');
+  const locationMatch = text.match(/\[([^\]]+)\]/);
+  const location = locationMatch ? locationMatch[1] : gameState.location;
+  const cleanText = text.replace(/\[[^\]]+\]\n?/,'').replace(/\*\*[^*]+\*\*/g,m=>`<strong style="color:var(--gold)">${m.replace(/\*\*/g,'')}</strong>`);
+  document.getElementById('current-location').textContent = location;
+  const div = document.createElement('div');
+  div.className = 'dm-message';
+  div.innerHTML = `<div class="dm-location">${location}</div><div class="dm-text">${cleanText}</div>`;
+  output.insertBefore(div, document.getElementById('typing'));
+  output.scrollTop = output.scrollHeight;
+}
+
+function renderPlayerMessage(text){
+  const output = document.getElementById('story-output');
+  const div = document.createElement('div');
+  div.className = 'player-message';
+  div.innerHTML = `<div class="player-text">> ${text}</div>`;
+  output.insertBefore(div, document.getElementById('typing'));
+  output.scrollTop = output.scrollHeight;
+}
+
+function renderRollMessage(die, result){
+  const output = document.getElementById('story-output');
+  const div = document.createElement('div');
+  div.className = 'roll-result';
+  div.innerHTML = `<div class="roll-num">${result}</div><div class="roll-label">d${die} · ${result===die?'MAXIMUM':'Roll'}</div>`;
+  output.insertBefore(div, document.getElementById('typing'));
+  output.scrollTop = output.scrollHeight;
+}
+
+function extractChoices(text){
+  const choiceRegex = /\n(\d+)\.\s+(.+)/g;
+  const choices = [];
+  let match;
+  while((match=choiceRegex.exec(text))!==null){
+    choices.push({num:match[1],text:match[2].trim()});
+  }
+  const area = document.getElementById('choices-area');
+  const btns = document.getElementById('choice-btns');
+  if(choices.length>0){
+    area.style.display='block';
+    btns.innerHTML = choices.map(c=>`
+      <button class="choice-btn" onclick="makeChoice('${c.text.replace(/'/g,"\\'")}')">
+        ${c.num}. ${c.text}
+      </button>
+    `).join('');
+  } else {
+    area.style.display='none';
+    btns.innerHTML='';
+  }
+}
+
+function makeChoice(text){
+  document.getElementById('choices-area').style.display='none';
+  renderPlayerMessage(text);
+  callDM([{role:'user',content:text}]);
+}
+
+function sendAction(){
+  const input = document.getElementById('player-input');
+  const text = input.value.trim();
+  if(!text) return;
+  input.value='';
+  document.getElementById('choices-area').style.display='none';
+  renderPlayerMessage(text);
+  callDM([{role:'user',content:text}]);
+}
+
+function rollDie(sides){
+  const result = Math.floor(Math.random()*sides)+1;
+  document.getElementById('dice-result').textContent=result;
+  const d20btn = document.getElementById('d20btn');
+  if(sides===20){
+    d20btn.classList.add('rolled');
+    setTimeout(()=>d20btn.classList.remove('rolled'),800);
+  }
+  renderRollMessage(sides,result);
+  const msg = `I rolled a d${sides} and got ${result}.`;
+  renderPlayerMessage(msg);
+  callDM([{role:'user',content:msg}]);
+}
+
+function updateLocation(text){
+  const match = text.match(/\[([^\]]+)\]/);
+  if(match) gameState.location = match[1];
+}
+
+function setTyping(show){
+  document.getElementById('typing').style.display = show?'block':'none';
+}
+
+function setInputDisabled(disabled){
+  document.getElementById('player-input').disabled=disabled;
+  document.getElementById('send-btn').disabled=disabled;
+}
+
+function toggleVoice(){
+  const btn = document.getElementById('voice-btn');
+  if(window.speechSynthesis.speaking){
+    window.speechSynthesis.cancel();
+    gameState.speaking=false;
+    btn.textContent='▶ Narrate';
+    btn.classList.remove('speaking');
+    return;
+  }
+  if(!gameState.currentDMText) return;
+  const clean = gameState.currentDMText
+    .replace(/\[[^\]]+\]/g,'')
+    .replace(/\*\*/g,'')
+    .replace(/\d+\.\s/g,'')
+    .replace(/Roll your.+/g,'')
+    .trim();
+  const utterance = new SpeechSynthesisUtterance(clean);
+  utterance.rate=0.85;
+  utterance.pitch=0.9;
+  utterance.onend=()=>{
+    gameState.speaking=false;
+    btn.textContent='▶ Narrate';
+    btn.classList.remove('speaking');
+  };
+  window.speechSynthesis.speak(utterance);
+  gameState.speaking=true;
+  btn.textContent='⏹ Stop';
+  btn.classList.add('speaking');
+}
+</script>
+</body>
+</html>
