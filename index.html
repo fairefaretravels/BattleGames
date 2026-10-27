@@ -632,10 +632,215 @@ footer span{color:var(--gold)}
   }
   .card{opacity:1}
 }
+
+  
+/* SENSTACK ARCADE INTRO SPLASH */
+#arcade-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 22px;
+  overflow: hidden;
+  background: #05060b;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity .65s ease, visibility .65s ease;
+}
+
+#arcade-splash::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(3, 5, 12, .25),
+      rgba(3, 5, 12, .25) 40%,
+      rgba(3, 5, 12, .92)
+    ),
+    url("mitd3d.jpg") center center / cover no-repeat;
+  transform: scale(1.02);
+  animation: splashZoom 12s ease-in-out infinite alternate;
+}
+
+#arcade-splash::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0 3px,
+    rgba(0, 0, 0, .2) 3px 4px
+  );
+}
+
+@keyframes splashZoom {
+  from { transform: scale(1.02); }
+  to { transform: scale(1.12); }
+}
+
+.splash-content {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 800px;
+  text-align: center;
+}
+
+.splash-kicker {
+  margin: 0 0 24px;
+  color: var(--cyan);
+  font: clamp(8px, 2vw, 12px)/1.8 var(--px);
+  letter-spacing: 3px;
+  text-shadow: 0 0 14px var(--cyan);
+}
+
+.splash-title {
+  margin: 0;
+  font: clamp(25px, 7.5vw, 64px)/1.4 var(--px);
+  letter-spacing: 1px;
+}
+
+.splash-title span {
+  display: block;
+}
+
+.splash-title .splash-senstack {
+  color: #fff;
+  text-shadow:
+    0 0 8px var(--green),
+    0 0 24px var(--green),
+    0 0 55px rgba(86, 227, 159, .8);
+}
+
+.splash-title .splash-arcade {
+  color: #fff;
+  text-shadow:
+    0 0 8px var(--purple),
+    0 0 24px var(--purple),
+    0 0 55px rgba(168, 120, 255, .8);
+}
+
+.splash-description {
+  margin: 22px auto 30px;
+  max-width: 520px;
+  color: #e1e7f0;
+  font-size: clamp(20px, 4vw, 27px);
+  line-height: 1.5;
+  text-shadow: 2px 2px 5px #000;
+}
+
+#splash-start {
+  display: inline-block;
+  min-width: 230px;
+  padding: 17px 20px;
+  border: 2px solid var(--gold);
+  border-radius: 0;
+  background: var(--gold);
+  color: #100d05;
+  font: clamp(9px, 2vw, 12px)/1.7 var(--px);
+  cursor: pointer;
+  box-shadow: 0 0 25px rgba(255, 209, 102, .35),
+              5px 5px 0 #000;
+  animation: splashPulse 1.5s steps(2, end) infinite;
+}
+
+#splash-start:hover,
+#splash-start:focus-visible {
+  background: #fff;
+  border-color: #fff;
+  outline: 2px solid var(--cyan);
+  outline-offset: 5px;
+}
+
+@keyframes splashPulse {
+  50% { box-shadow: 0 0 35px rgba(255, 209, 102, .7); }
+}
+
+.splash-footer {
+  margin: 26px 0 0;
+  color: #c5d0d5;
+  font: 8px/2 var(--px);
+  letter-spacing: 2px;
+}
+
+#arcade-splash.splash-hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+body.splash-active {
+  overflow: hidden;
+}
+
+@media (max-width: 480px) {
+  #arcade-splash {
+    padding: 18px;
+  }
+
+  #arcade-splash::before {
+    background-position: center center;
+  }
+
+  .splash-kicker {
+    letter-spacing: 1px;
+  }
+
+  .splash-description {
+    margin: 18px auto 25px;
+  }
+
+  #splash-start {
+    width: min(100%, 300px);
+    padding: 15px 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #arcade-splash,
+  #arcade-splash::before,
+  #splash-start {
+    animation: none;
+    transition: none;
+  }
+}
+
 </style>
 </head>
 
 <body>
+  
+<!-- SENSTACK ARCADE SPLASH SCREEN -->
+<section id="arcade-splash" aria-label="SENSTACK ARCADE introduction">
+  <div class="splash-content">
+    <p class="splash-kicker">SANECA MACK PRESENTS</p>
+
+    <h1 class="splash-title">
+      <span class="splash-senstack">SENSTACK</span>
+      <span class="splash-arcade">ARCADE</span>
+    </h1>
+
+    <p class="splash-description">
+      Fighters. Racers. Monsters. Legends. Casino.<br>
+      Your next game starts here.
+    </p>
+
+    <button id="splash-start" type="button">
+      PRESS START &gt;
+    </button>
+
+    <p class="splash-footer">
+      INSERT COIN · SELECT YOUR GAME
+    </p>
+  </div>
+</section>
+<!-- END SPLASH SCREEN -->
+
 <div class="floor" aria-hidden="true"></div>
 
 <div class="ticker" aria-hidden="true">
@@ -1008,6 +1213,24 @@ footer span{color:var(--gold)}
 
 <script>
 (() => {
+  
+  // Splash screen: reveal the arcade when the player presses Start.
+  const splash = document.getElementById('arcade-splash');
+  const startButton = document.getElementById('splash-start');
+
+  document.body.classList.add('splash-active');
+
+  function enterArcade() {
+    splash.classList.add('splash-hidden');
+    document.body.classList.remove('splash-active');
+
+    window.setTimeout(() => {
+      splash.hidden = true;
+    }, 700);
+  }
+
+  startButton.addEventListener('click', enterArcade);
+
   const cards = [...document.querySelectorAll('.card')];
   const filters = [...document.querySelectorAll('.filter-btn')];
   const countDisplay = document.getElementById('game-count');
