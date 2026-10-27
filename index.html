@@ -900,6 +900,112 @@ body.splash-active {
     opacity: 1;
   }
 }
+
+ 
+/* SENSTACK ARCADE RADIO */
+.arcade-radio {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  max-width: 900px;
+  margin: 22px auto 28px;
+  padding: 15px 18px;
+  border: 2px solid var(--border);
+  background: linear-gradient(110deg, #10151d, #171027);
+  box-shadow: 4px 4px 0 #000, 0 0 18px rgba(66, 232, 245, .12);
+}
+
+.radio-info {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  min-width: 0;
+}
+
+.radio-indicator {
+  width: 13px;
+  height: 13px;
+  flex: 0 0 13px;
+  border-radius: 50%;
+  background: #68737a;
+  box-shadow: 0 0 0 4px rgba(197, 208, 213, .08);
+}
+
+.radio-indicator.is-playing {
+  background: var(--green);
+  box-shadow: 0 0 12px var(--green);
+  animation: radioPulse 1.5s ease-in-out infinite;
+}
+
+.radio-info strong {
+  display: block;
+  color: var(--cyan);
+  font: 800 15px/1.5 Arial, sans-serif;
+  letter-spacing: 1px;
+}
+
+.radio-info p {
+  margin: 3px 0 0;
+  color: var(--muted);
+  font: 14px/1.5 Arial, sans-serif;
+}
+
+.radio-toggle {
+  flex-shrink: 0;
+  min-height: 46px;
+  padding: 11px 15px;
+  border: 2px solid var(--green);
+  background: var(--green);
+  color: #04140c;
+  font: 800 13px/1.3 Arial, sans-serif;
+  cursor: pointer;
+  transition: background .2s, color .2s, border-color .2s;
+}
+
+.radio-toggle:hover,
+.radio-toggle:focus-visible {
+  border-color: var(--cyan);
+  outline: 2px solid var(--cyan);
+  outline-offset: 3px;
+}
+
+.radio-toggle.is-playing {
+  border-color: var(--pink);
+  background: transparent;
+  color: #fff;
+}
+
+@keyframes radioPulse {
+  50% { opacity: .5; }
+}
+
+@media (max-width: 480px) {
+  .arcade-radio {
+    gap: 10px;
+    padding: 13px 11px;
+  }
+
+  .radio-info {
+    gap: 9px;
+  }
+
+  .radio-info strong {
+    font-size: 13px;
+    letter-spacing: .4px;
+  }
+
+  .radio-info p {
+    font-size: 13px;
+  }
+
+  .radio-toggle {
+    min-height: 44px;
+    padding: 10px;
+    font-size: 12px;
+  }
+}
+ 
 </style>
 
 </head>
@@ -931,6 +1037,35 @@ body.splash-active {
   </div>
 </section>
 <!-- END SPLASH SCREEN -->
+
+ 
+<!-- SENSTACK ARCADE RADIO -->
+<section class="arcade-radio" aria-label="SENSTACK Arcade Radio">
+  <div class="radio-info">
+    <span class="radio-indicator" id="radio-indicator"></span>
+    <div>
+      <strong>SENSTACK RADIO</strong>
+      <p id="radio-status" aria-live="polite">Radio is off</p>
+    </div>
+  </div>
+
+  <button
+    type="button"
+    id="radio-toggle"
+    class="radio-toggle"
+    aria-pressed="false"
+  >
+    TURN RADIO ON
+  </button>
+
+  <audio id="arcade-radio-audio" preload="none">
+    <source
+      src="https://listen.streamaudio.co/proxy/mackinthedark/stream"
+      type="audio/mpeg"
+    >
+  </audio>
+</section>
+ 
 
 <div class="floor" aria-hidden="true"></div>
 
@@ -1377,6 +1512,55 @@ body.splash-active {
 
   // Ensure the initial display includes all games.
   filterGames('all');
+})();
+</script>
+
+<script>
+(() => {
+  const audio = document.getElementById("arcade-radio-audio");
+  const button = document.getElementById("radio-toggle");
+  const status = document.getElementById("radio-status");
+  const indicator = document.getElementById("radio-indicator");
+
+  if (!audio || !button || !status || !indicator) return;
+
+  function setRadioState(playing) {
+    button.classList.toggle("is-playing", playing);
+    indicator.classList.toggle("is-playing", playing);
+    button.setAttribute("aria-pressed", String(playing));
+    button.textContent = playing ? "TURN RADIO OFF" : "TURN RADIO ON";
+    status.textContent = playing ? "Streaming live" : "Radio is off";
+  }
+
+  button.addEventListener("click", async () => {
+    if (!audio.paused) {
+      audio.pause();
+      setRadioState(false);
+      return;
+    }
+
+    status.textContent = "Connecting to station…";
+    button.disabled = true;
+
+    try {
+      await audio.play();
+      setRadioState(true);
+    } catch (error) {
+      status.textContent = "Couldn't connect. Try again.";
+      setRadioState(false);
+    } finally {
+      button.disabled = false;
+    }
+  });
+
+  audio.addEventListener("playing", () => setRadioState(true));
+
+  audio.addEventListener("pause", () => setRadioState(false));
+
+  audio.addEventListener("error", () => {
+    setRadioState(false);
+    status.textContent = "Station unavailable. Try again later.";
+  });
 })();
 </script>
 
