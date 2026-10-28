@@ -22,10 +22,71 @@ button{font:inherit;cursor:pointer;touch-action:manipulation}.primary{border:0;b
 .controls{display:none;align-items:center;justify-content:space-between;gap:14px;padding:7px 2px 2px;user-select:none;-webkit-user-select:none}
 .pad{display:flex;gap:10px}.control{width:clamp(58px,15vw,78px);height:clamp(54px,13vw,68px);border:1px solid #3d646a;border-radius:12px;background:linear-gradient(145deg,#17262e,#10171e);color:var(--cyan);font-size:24px;font-weight:900;touch-action:none}.control.jump{width:clamp(84px,22vw,120px);color:#10140d;background:linear-gradient(145deg,#ffe49b,#ffd166);border-color:#ffe5a1;font-size:13px;letter-spacing:1px}.control.active{transform:scale(.96);background:#24434a}
 .footer{text-align:center;color:#64777d;font-size:9px;letter-spacing:2px;font-weight:800;padding:5px}
-@media(max-width:650px){body{padding:9px}.controls{display:flex}.help{font-size:10px}.stat{padding:8px 9px}.stat strong{font-size:14px}canvas{aspect-ratio:4/3}.dialog p{font-size:12px}}
+
+/* ---------- Splash screens ---------- */
+.splash{position:fixed;inset:0;z-index:100;background:#05080c;overflow:hidden}
+.splash.hidden{display:none}
+#splash1{cursor:pointer;display:flex;align-items:center;justify-content:center}
+.s1-bg{position:absolute;inset:-30px;background:url("neon-run.jpg") center/cover no-repeat;filter:blur(26px) brightness(.45)}
+.s1-img{position:relative;width:100%;height:100%;object-fit:contain;display:block}
+.s1-hint{position:absolute;left:0;right:0;bottom:calc(22px + env(safe-area-inset-bottom,0px));text-align:center;font-size:clamp(11px,2.4vw,15px);font-weight:900;letter-spacing:4px;color:#fff;text-shadow:0 0 12px #42e8f5,0 2px 6px #000;animation:blink 1.3s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+.s2-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#05080c}
+.s2-shade{position:absolute;inset:0;background:linear-gradient(180deg,#05080c99,#05080ccc)}
+.s2-scroll{position:absolute;inset:0;overflow-y:auto;display:flex;padding:clamp(12px,3vw,28px);padding-top:calc(clamp(12px,3vw,28px) + env(safe-area-inset-top,0px));padding-bottom:calc(clamp(12px,3vw,28px) + env(safe-area-inset-bottom,0px));-webkit-overflow-scrolling:touch}
+.s2-panel{margin:auto;width:min(100%,780px);padding:clamp(18px,4vw,36px);border:1px solid #3c5a61;border-radius:16px;background:#0a1218e6;box-shadow:0 0 40px #42e8f533,0 20px 60px #000a}
+.s2-panel h2{margin:10px 0 4px;font-size:clamp(24px,5.5vw,42px);line-height:1;font-style:italic;font-weight:900;letter-spacing:-1px}.s2-panel h2 span{color:var(--cyan)}
+.s2-panel .sub{color:var(--gold);font-weight:900;font-size:clamp(13px,2.6vw,16px);margin:10px 0 14px;font-style:italic}
+.s2-panel p{color:#c6d3d8;font-size:clamp(12.5px,2.2vw,14.5px);line-height:1.7;margin:0 0 11px}
+.s2-panel .tagline{color:var(--green);font-weight:900;letter-spacing:1px;margin-top:14px;font-size:clamp(13px,2.6vw,16px)}
+.s2-panel h3{margin:20px 0 10px;font-size:11px;letter-spacing:3px;color:var(--green);border-top:1px solid #2b414a;padding-top:16px}
+.how{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin:0;padding:0;list-style:none}
+.how li{padding:10px 12px;border:1px solid #2b414a;background:#101a20;border-radius:9px;color:#b5c4c9;font-size:12px;line-height:1.55}
+.how b{display:block;color:var(--cyan);font-size:10px;letter-spacing:2px;margin-bottom:3px}
+.s2-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:center;margin-top:22px}
+@media(max-width:650px){body{padding:9px}.controls{display:flex}.help{font-size:10px}.stat{padding:8px 9px}.stat strong{font-size:14px}canvas{aspect-ratio:4/3}.dialog p{font-size:12px}.how{grid-template-columns:1fr}}
 @media(hover:none){.controls{display:flex}}
+@media(prefers-reduced-motion:reduce){.s1-hint{animation:none}}
 </style></head>
 <body>
+
+<!-- Splash 1: title image -->
+<div class="splash" id="splash1" role="button" tabindex="0" aria-label="Neon Run title screen. Tap, click or press any key to continue.">
+<div class="s1-bg" aria-hidden="true"></div>
+<img class="s1-img" src="neon-run.jpg" alt="NEON RUN">
+<div class="s1-hint">TAP · CLICK · PRESS ANY KEY</div>
+</div>
+
+<!-- Splash 2: story video + instructions -->
+<div class="splash hidden" id="splash2" role="dialog" aria-label="Story and instructions">
+<video class="s2-video" id="storyVideo" src="cb.mp4" playsinline loop preload="auto"></video>
+<div class="s2-shade"></div>
+<div class="s2-scroll"><div class="s2-panel">
+<div class="kicker">THE LEGEND</div>
+<h2>NEON RUN: <span>The Crystal Hummingbird</span></h2>
+<div class="sub">In a world where light is power, darkness is taking over.</div>
+<p>Long ago, the city of Neon was powered by the Crystal Heart, a mysterious source of energy hidden deep beneath the streets. But when the Crystal Hummingbird—a powerful guardian—became corrupted by a dark force, it shattered the Crystal Heart and stole its fragments.</p>
+<p>Now the city is falling apart. Neon lights are fading, portals are opening, and dangerous creatures are spreading across the world.</p>
+<p>You are the last runner capable of restoring the Crystal Heart. To save Neon, you must race through dangerous levels, defeat corrupted enemies, and collect the lost crystal fragments.</p>
+<p>But at the end of your journey stands the Crystal Hummingbird.</p>
+<p>Once a protector, now a deadly enemy, it guards the final piece of the Crystal Heart. You must defeat it—not to destroy the guardian, but to free it from the darkness.</p>
+<p class="tagline">Run fast. Fight hard. Restore the light.</p>
+<h3>HOW TO PLAY</h3>
+<ul class="how">
+<li><b>MOVE</b>A / D or ← → keys, gamepad stick / D-pad, or the on-screen arrows.</li>
+<li><b>JUMP</b>W, ↑ or SPACE, gamepad A / ✕, or the JUMP button on touch screens.</li>
+<li><b>COLLECT</b>Grab the glowing energy orbs for points and a bonus at each portal.</li>
+<li><b>DEFEAT</b>Stomp sentry bots from above. Avoid the neon spikes and don't fall.</li>
+<li><b>PORTAL</b>Reach the portal at the end of each of the three levels.</li>
+<li><b>BOSS</b>Dodge the Hummingbird's shards and dive. When it crashes, stomp it. Five hits wins!</li>
+</ul>
+<div class="s2-actions">
+<button class="primary" id="splashStart">CONTINUE ▶</button>
+<button class="small-button" id="splashSound" type="button" aria-pressed="false">🔊 SOUND ON</button>
+</div>
+</div></div>
+</div>
+
 <div class="app">
 <header class="top"><div class="brand"><b>SENSTACK</b> NEON RUN</div><div class="tag">ARCADE SYSTEM // 01</div></header>
 <section class="hud" aria-label="Game status">
@@ -62,6 +123,31 @@ let state='menu',levelIndex=0,score=0,lives=3,levelCoins=0,totalCoins=0,cameraX=
 let player,platforms=[],orbs=[],enemies=[],hazards=[],goal=null,worldWidth=3000,particles=[],boss=null,shards=[];
 const keys={left:false,right:false,jump:false},pad={left:false,right:false};
 let prevAct=false;
+
+/* ---------- Splash screens ---------- */
+let splashStage=0; // 0 = title image, 1 = story video, 2 = game
+const sp1=document.getElementById('splash1'),sp2=document.getElementById('splash2'),vid=document.getElementById('storyVideo');
+const sndBtn=document.getElementById('splashSound'),splashStart=document.getElementById('splashStart');
+function updateSnd(){const on=!vid.muted;sndBtn.textContent=on?'🔊 SOUND ON':'🔇 SOUND OFF';sndBtn.setAttribute('aria-pressed',String(!on));}
+function showStory(){
+ if(splashStage!==0)return;
+ splashStage=1;sp1.classList.add('hidden');sp2.classList.remove('hidden');
+ vid.muted=false;vid.currentTime=0;
+ const p=vid.play();
+ if(p&&p.catch)p.catch(()=>{vid.muted=true;const q=vid.play();if(q&&q.catch)q.catch(()=>{});updateSnd();});
+ updateSnd();
+ splashStart.focus({preventScroll:true});
+}
+function endSplash(){
+ if(splashStage!==1)return;
+ splashStage=2;vid.pause();sp2.classList.add('hidden');
+ prevAct=true;startBtn.focus({preventScroll:true});
+}
+sp1.addEventListener('click',showStory);
+vid.addEventListener('error',()=>{vid.style.display='none';});
+splashStart.addEventListener('click',endSplash);
+sndBtn.addEventListener('click',()=>{vid.muted=!vid.muted;updateSnd();});
+
 const levelSpecs=[
  {width:3000, platforms:[[0,480,480,60],[540,440,180,22],[790,395,170,22],[1030,455,220,22],[1330,410,180,22],[1580,360,190,22],[1840,430,220,22],[2140,385,180,22],[2400,445,190,22],[2680,400,320,22]],orbs:[[230,430],[600,390],[850,345],[1100,405],[1380,360],[1640,310],[1900,380],[2200,335],[2470,395],[2780,350]],enemies:[[660,410,560,740],[1450,380,1360,1500],[2220,355,2160,2300]],hazards:[[485,480,55,60],[720,480,70,60],[960,480,70,60],[1250,480,80,60],[1510,480,70,60],[1800,480,50,60],[2060,480,80,60],[2330,480,70,60],[2590,480,90,60]],goal:2850},
  {width:3400,platforms:[[0,480,370,60],[430,425,190,22],[700,370,160,22],[940,430,190,22],[1210,380,200,22],[1500,330,180,22],[1760,410,190,22],[2020,360,200,22],[2300,310,180,22],[2540,400,210,22],[2820,350,180,22],[3090,430,310,22]],orbs:[[150,430],[480,375],[750,320],[1000,380],[1280,330],[1550,280],[1820,360],[2080,310],[2360,260],[2600,350],[2880,300],[3200,380]],enemies:[[500,395,455,580],[1320,350,1240,1360],[1810,380,1780,1910],[2600,370,2580,2700],[3160,400,3120,3300]],hazards:[[370,480,60,60],[620,480,80,60],[860,480,80,60],[1130,480,80,60],[1410,480,90,60],[1680,480,80,60],[1950,480,70,60],[2220,480,80,60],[2480,480,60,60],[2750,480,70,60],[3000,480,90,60]],goal:3280},
@@ -229,6 +315,10 @@ function pollPad(){
   if(b(9))startNow=true;
  }
  const act=jumpNow||startNow;
+ if(splashStage<2){
+  if(act&&!prevAct){if(splashStage===0)showStory();else endSplash();}
+  prevAct=act;pad.left=pad.right=false;return;
+ }
  if(act&&!prevAct){if(state==='playing'){if(jumpNow)keys.jump=true;}else startGame();}
  prevAct=act;
 }
@@ -241,8 +331,18 @@ function setKey(e,down){
  else handled=false;
  if(handled)e.preventDefault();
 }
-window.addEventListener('keydown',e=>setKey(e,true),{passive:false});
-window.addEventListener('keyup',e=>setKey(e,false),{passive:false});
+window.addEventListener('keydown',e=>{
+ if(splashStage===0){
+  if(['Shift','Control','Alt','Meta','Tab'].includes(e.key))return;
+  e.preventDefault();showStory();return;
+ }
+ if(splashStage===1){
+  if(e.key==='Enter'||e.key==='Escape'){e.preventDefault();endSplash();}
+  return;
+ }
+ setKey(e,true);
+},{passive:false});
+window.addEventListener('keyup',e=>{if(splashStage===2)setKey(e,false);},{passive:false});
 window.addEventListener('blur',()=>{keys.left=keys.right=keys.jump=false;});
 document.querySelectorAll('[data-control]').forEach(btn=>{
  const name=btn.dataset.control;
