@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -36,7 +35,6 @@
 
 <!-- Browser icon -->
 <link rel="icon" type="image/png" href="connect4.PNG">
-</head>
 
 <style>
 :root {
@@ -174,6 +172,35 @@ input[type="color"] { width:38px; height:32px; padding:2px; border-radius:8px; b
 .footer { text-align:center; color:#8495d0; font-size:10px; letter-spacing:.17em; margin-top:19px; }
 .toast { position:fixed; z-index:10; left:50%; bottom:22px; transform:translate(-50%,18px); opacity:0; pointer-events:none; padding:12px 18px; border-radius:12px; background:#f7fbff; color:#09122f; font-weight:900; font-size:13px; box-shadow:0 8px 30px #0008; transition:.22s; max-width:calc(100vw - 24px); text-align:center; }
 .toast.show { opacity:1; transform:translate(-50%,0); }
+
+/* Mode selector (side card + popup) */
+.seg { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+.seg.three { grid-template-columns:repeat(3,1fr); }
+.seg button { border:1px solid transparent; background:rgba(1,5,25,.5); padding:9px 6px; border-radius:11px; font-size:12px; font-weight:800; letter-spacing:.03em; }
+.seg button:hover { border-color:var(--line); }
+.seg button[aria-pressed="true"] { border-color:var(--accent); background:color-mix(in srgb,var(--accent) 18%,transparent); color:var(--accent); }
+.sub-label { display:block; margin:13px 0 7px; font-size:11px; letter-spacing:.12em; color:var(--muted); text-transform:uppercase; }
+.thinking .board { opacity:.88; }
+
+/* PLAY NOW popup */
+.modal { position:fixed; inset:0; z-index:50; display:grid; place-items:center; padding:16px; background:rgba(3,5,20,.8); backdrop-filter:blur(6px); transition:opacity .25s; }
+.modal[hidden] { display:none; }
+.modal.closing { opacity:0; pointer-events:none; }
+.modal-box { width:min(420px,100%); max-height:calc(100vh - 32px); overflow:auto; text-align:center; padding:28px 24px 24px; border-radius:24px; border:1px solid var(--line);
+  background:linear-gradient(150deg,rgba(14,26,80,.98),rgba(8,10,37,.98)); box-shadow:0 0 40px color-mix(in srgb,var(--accent) 45%,transparent), 0 20px 50px #000a;
+  animation:popIn .35s cubic-bezier(.2,.9,.3,1.2) both; }
+@keyframes popIn { from { transform:scale(.85) translateY(20px); opacity:0; } to { transform:none; opacity:1; } }
+.modal-discs { display:flex; justify-content:center; gap:8px; margin-bottom:14px; }
+.modal-discs i { width:26px; height:26px; border-radius:50%; border:2px solid #ffffff77; }
+.modal-discs i:nth-child(odd) { background:var(--p1); box-shadow:0 0 14px var(--p1); }
+.modal-discs i:nth-child(even) { background:var(--p2); box-shadow:0 0 14px var(--p2); }
+.modal-box h2 { margin:0; font-size:28px; letter-spacing:.07em; }
+.modal-box h2 span { color:var(--accent); }
+.modal-box p { margin:8px 0 18px; color:var(--muted); font-size:13px; }
+.modal-box .seg { text-align:center; }
+.play-now { width:100%; margin-top:22px; padding:16px; font-size:18px; letter-spacing:.12em; border-radius:14px; animation:playGlow 1.6s ease-in-out infinite alternate; }
+@keyframes playGlow { from { box-shadow:0 0 12px color-mix(in srgb,var(--accent) 40%,transparent); } to { box-shadow:0 0 28px var(--accent); } }
+
 @media (max-width:800px) {
   .layout { grid-template-columns:1fr; }
   .side { grid-template-columns:repeat(2,minmax(0,1fr)); }
@@ -241,12 +268,28 @@ input[type="color"] { width:38px; height:32px; padding:2px; border-radius:8px; b
           <span class="player-chip"></span><div><strong>PLAYER 1</strong><small id="player1ColorName">Red</small></div>
         </div>
         <div class="player-card" id="player2Card" style="--player-color:var(--p2)">
-          <span class="player-chip"></span><div><strong>PLAYER 2</strong><small id="player2ColorName">Yellow</small></div>
+          <span class="player-chip"></span><div><strong id="player2Name">PLAYER 2</strong><small id="player2ColorName">Yellow</small></div>
         </div>
       </div>
     </section>
 
     <aside class="side">
+      <section class="side-card">
+        <h2>Game mode</h2>
+        <div class="seg" id="modeSeg">
+          <button type="button" data-mode="2p" aria-pressed="true">👥 2 Players</button>
+          <button type="button" data-mode="cpu" aria-pressed="false">🤖 vs Computer</button>
+        </div>
+        <div id="diffWrap" hidden>
+          <span class="sub-label">Difficulty</span>
+          <div class="seg three" id="diffSeg">
+            <button type="button" data-diff="easy" aria-pressed="false">Easy</button>
+            <button type="button" data-diff="medium" aria-pressed="true">Medium</button>
+            <button type="button" data-diff="hard" aria-pressed="false">Hard</button>
+          </div>
+        </div>
+      </section>
+
       <section class="side-card">
         <h2>Color theme</h2>
         <div class="theme-list" id="themeList">
@@ -282,6 +325,28 @@ input[type="color"] { width:38px; height:32px; padding:2px; border-radius:8px; b
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+<!-- PLAY NOW popup -->
+<div class="modal" id="playModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal-box">
+    <div class="modal-discs" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+    <h2 id="modalTitle">CONNECT <span>4</span></h2>
+    <p>Choose how you want to play, then jump in!</p>
+    <div class="seg" id="modalModeSeg">
+      <button type="button" data-mode="2p" aria-pressed="true">👥 2 Players</button>
+      <button type="button" data-mode="cpu" aria-pressed="false">🤖 vs Computer</button>
+    </div>
+    <div id="modalDiffWrap" hidden>
+      <span class="sub-label">Difficulty</span>
+      <div class="seg three" id="modalDiffSeg">
+        <button type="button" data-diff="easy" aria-pressed="false">Easy</button>
+        <button type="button" data-diff="medium" aria-pressed="true">Medium</button>
+        <button type="button" data-diff="hard" aria-pressed="false">Hard</button>
+      </div>
+    </div>
+    <button class="btn primary play-now" id="playNowBtn" type="button">▶ PLAY NOW</button>
+  </div>
+</div>
+
 <script>
 (() => {
   "use strict";
@@ -298,10 +363,13 @@ input[type="color"] { width:38px; height:32px; padding:2px; border-radius:8px; b
   const $ = id => document.getElementById(id);
   const boardEl = $("board");
   let board, currentPlayer, history, gameOver, winningCells, animationsOn, lastMove, toastTimer;
+  let mode = "2p", difficulty = "medium", cpuTimer = null, thinking = false;
   const playerColors = { 1:"#ff3158", 2:"#ffd92f" };
   const reducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const isCpuTurn = () => mode === "cpu" && currentPlayer === 2 && !gameOver;
 
   function initState() {
+    clearTimeout(cpuTimer); thinking = false;
     board = Array.from({length:ROWS}, () => Array(COLS).fill(0));
     currentPlayer = 1; history = []; gameOver = false; winningCells = [];
     lastMove = null; renderBoard(); updateStatus(); updateControls();
@@ -328,8 +396,7 @@ input[type="color"] { width:38px; height:32px; padding:2px; border-radius:8px; b
     $(`p${player}Hex`).textContent = color.toUpperCase();
     $(`p${player}Color`).value = color;
     $(`player${player}ColorName`).textContent = color.toUpperCase();
-    renderBoard();
-    updateStatus();
+    if (board) { renderBoard(); updateStatus(); }
   }
   function renderBoard(animateAt = null) {
     boardEl.innerHTML = "";
@@ -338,8 +405,8 @@ input[type="color"] { width:38px; height:32px; padding:2px; border-radius:8px; b
       colBtn.type = "button"; colBtn.className = "column";
       colBtn.setAttribute("aria-label", `Drop disc in column ${c+1}`);
       colBtn.title = `Drop in column ${c+1}`;
-      colBtn.disabled = gameOver || board[0][c] !== 0;
-      colBtn.addEventListener("click", () => dropDisc(c));
+      colBtn.disabled = gameOver || thinking || isCpuTurn() || board[0][c] !== 0;
+      colBtn.addEventListener("click", () => humanDrop(c));
       for (let r = 0; r < ROWS; r++) {
         const slot = document.createElement("span");
         slot.className = "slot";
@@ -357,30 +424,36 @@ input[type="color"] { width:38px; height:32px; padding:2px; border-radius:8px; b
       boardEl.appendChild(colBtn);
     }
   }
+  function p2Label() { return mode === "cpu" ? "COMPUTER" : "PLAYER 2"; }
   function updateStatus() {
     const dot = $("turnDot");
     dot.style.background = playerColors[currentPlayer];
     dot.style.boxShadow = `0 0 14px ${playerColors[currentPlayer]}`;
     $("player1Card").classList.toggle("active", !gameOver && currentPlayer===1);
     $("player2Card").classList.toggle("active", !gameOver && currentPlayer===2);
+    $("player2Name").textContent = p2Label();
     $("moveCount").textContent = `MOVE ${String(history.length).padStart(2,"0")}`;
     if (gameOver && winningCells.length) {
       const winner = board[winningCells[0][0]][winningCells[0][1]];
-      $("statusTitle").textContent = `PLAYER ${winner} WINS!`;
+      const name = winner === 2 && mode === "cpu" ? "COMPUTER" : `PLAYER ${winner}`;
+      $("statusTitle").textContent = mode === "cpu" && winner === 1 ? "YOU WIN!" : `${name} WINS!`;
       $("statusHint").textContent = "Four connected. Start a new game to play again.";
       dot.style.background = playerColors[winner];
       dot.style.boxShadow = `0 0 18px ${playerColors[winner]}`;
     } else if (gameOver) {
       $("statusTitle").textContent = "IT'S A DRAW!";
       $("statusHint").textContent = "The board is full. Start a rematch!";
+    } else if (isCpuTurn()) {
+      $("statusTitle").textContent = "COMPUTER'S TURN";
+      $("statusHint").textContent = "The computer is thinking…";
     } else {
-      $("statusTitle").textContent = `PLAYER ${currentPlayer}'S TURN`;
-      $("statusHint").textContent = `Drop a ${currentPlayer===1 ? "Player 1" : "Player 2"} disc into any open column.`;
+      $("statusTitle").textContent = mode === "cpu" ? "YOUR TURN" : `PLAYER ${currentPlayer}'S TURN`;
+      $("statusHint").textContent = mode === "cpu" ? "Drop a disc into any open column." : `Drop a ${currentPlayer===1 ? "Player 1" : "Player 2"} disc into any open column.`;
     }
   }
   function updateControls() {
-    $("undoBtn").disabled = history.length===0;
-    $("undoBtn").style.opacity = history.length===0 ? ".45" : "1";
+    $("undoBtn").disabled = history.length===0 || thinking;
+    $("undoBtn").style.opacity = $("undoBtn").disabled ? ".45" : "1";
     $("animationsBtn").textContent = animationsOn ? "✦ ANIMATIONS: ON" : "✦ ANIMATIONS: OFF";
     $("animationsBtn").setAttribute("aria-pressed",String(animationsOn));
   }
@@ -398,6 +471,10 @@ input[type="color"] { width:38px; height:32px; padding:2px; border-radius:8px; b
     }
     return [];
   }
+  function humanDrop(c) {
+    if (thinking || isCpuTurn()) return;
+    dropDisc(c);
+  }
   function dropDisc(c) {
     if (gameOver || c<0 || c>=COLS) return;
     let r = ROWS-1;
@@ -406,40 +483,159 @@ input[type="color"] { width:38px; height:32px; padding:2px; border-radius:8px; b
     board[r][c] = currentPlayer;
     history.push({r,c,player:currentPlayer});
     lastMove = {r,c};
+    const anim = animationsOn && !reducedMotion ? {r,c} : null;
     const line = getWinningLine(r,c,currentPlayer);
     if (line.length) {
       gameOver = true; winningCells = line;
-      renderBoard(animationsOn && !reducedMotion ? {r,c} : null);
-      updateStatus(); updateControls();
-      if (animationsOn && !reducedMotion) {
-        setTimeout(() => { renderBoard(); }, 400);
-      }
-      showToast(`PLAYER ${currentPlayer} CONNECTS FOUR!`);
+      renderBoard(anim); updateStatus(); updateControls();
+      if (anim) setTimeout(() => { renderBoard(); }, 400);
+      showToast(mode === "cpu" ? (currentPlayer===1 ? "YOU CONNECT FOUR!" : "COMPUTER CONNECTS FOUR!") : `PLAYER ${currentPlayer} CONNECTS FOUR!`);
       return;
     }
     if (history.length === ROWS*COLS) {
       gameOver = true;
-      renderBoard(animationsOn && !reducedMotion ? {r,c} : null);
-      updateStatus(); updateControls(); showToast("DRAW GAME — NICE MATCH!");
+      renderBoard(anim); updateStatus(); updateControls(); showToast("DRAW GAME — NICE MATCH!");
       return;
     }
     currentPlayer = currentPlayer===1 ? 2 : 1;
-    renderBoard(animationsOn && !reducedMotion ? {r,c} : null);
-    updateStatus(); updateControls();
+    renderBoard(anim); updateStatus(); updateControls();
+    if (isCpuTurn()) scheduleCpu();
   }
+
+  /* ---------- Computer opponent ---------- */
+  const validCols = b => [3,2,4,1,5,0,6].filter(c => b[0][c] === 0);
+  function rowFor(b,c) { let r = ROWS-1; while (r>=0 && b[r][c]!==0) r--; return r; }
+  function wins(b,r,c,p) {
+    for (const [dr,dc] of [[0,1],[1,0],[1,1],[1,-1]]) {
+      let n = 1;
+      for (const s of [-1,1]) {
+        let nr=r+dr*s, nc=c+dc*s;
+        while (nr>=0 && nr<ROWS && nc>=0 && nc<COLS && b[nr][nc]===p) { n++; nr+=dr*s; nc+=dc*s; }
+      }
+      if (n>=4) return true;
+    }
+    return false;
+  }
+  function scoreWindow(w, p) {
+    const o = p===2 ? 1 : 2;
+    const mine = w.filter(v=>v===p).length, theirs = w.filter(v=>v===o).length, empty = w.filter(v=>v===0).length;
+    if (mine && theirs) return 0;
+    if (mine===3 && empty===1) return 5;
+    if (mine===2 && empty===2) return 2;
+    if (theirs===3 && empty===1) return -6;
+    return 0;
+  }
+  function evaluate(b) {
+    let s = 0;
+    for (let r=0;r<ROWS;r++) if (b[r][3]===2) s+=3; else if (b[r][3]===1) s-=3;
+    for (let r=0;r<ROWS;r++) for (let c=0;c<COLS;c++) for (const [dr,dc] of [[0,1],[1,0],[1,1],[1,-1]]) {
+      const er=r+dr*3, ec=c+dc*3;
+      if (er<0||er>=ROWS||ec<0||ec>=COLS) continue;
+      s += scoreWindow([0,1,2,3].map(i=>b[r+dr*i][c+dc*i]), 2);
+    }
+    return s;
+  }
+  function minimax(b, depth, alpha, beta, maximizing, last) {
+    if (last && wins(b,last.r,last.c,last.p)) return last.p===2 ? 100000+depth : -100000-depth;
+    const cols = validCols(b);
+    if (!cols.length) return 0;
+    if (depth===0) return evaluate(b);
+    if (maximizing) {
+      let best = -Infinity;
+      for (const c of cols) {
+        const r = rowFor(b,c); b[r][c]=2;
+        best = Math.max(best, minimax(b,depth-1,alpha,beta,false,{r,c,p:2}));
+        b[r][c]=0; alpha = Math.max(alpha,best); if (alpha>=beta) break;
+      }
+      return best;
+    }
+    let best = Infinity;
+    for (const c of cols) {
+      const r = rowFor(b,c); b[r][c]=1;
+      best = Math.min(best, minimax(b,depth-1,alpha,beta,true,{r,c,p:1}));
+      b[r][c]=0; beta = Math.min(beta,best); if (alpha>=beta) break;
+    }
+    return best;
+  }
+  function immediate(p) {
+    for (const c of validCols(board)) {
+      const r = rowFor(board,c); board[r][c]=p;
+      const w = wins(board,r,c,p); board[r][c]=0;
+      if (w) return c;
+    }
+    return -1;
+  }
+  function chooseCpuMove() {
+    const cols = validCols(board);
+    if (difficulty === "easy") {
+      if (Math.random() < .6) { const w = immediate(2); if (w>=0) return w; }
+      if (Math.random() < .4) { const b = immediate(1); if (b>=0) return b; }
+      return cols[Math.floor(Math.random()*cols.length)];
+    }
+    const depth = difficulty === "hard" ? 6 : 3;
+    let bestScore = -Infinity, bestCols = [];
+    for (const c of cols) {
+      const r = rowFor(board,c); board[r][c]=2;
+      const s = minimax(board, depth-1, -Infinity, Infinity, false, {r,c,p:2});
+      board[r][c]=0;
+      if (s>bestScore) { bestScore=s; bestCols=[c]; } else if (s===bestScore) bestCols.push(c);
+    }
+    return bestCols[0];
+  }
+  function scheduleCpu() {
+    thinking = true; renderBoard(); updateControls();
+    cpuTimer = setTimeout(() => {
+      thinking = false;
+      if (!isCpuTurn()) return;
+      dropDisc(chooseCpuMove());
+    }, 550 + Math.random()*350);
+  }
+
+  /* ---------- Actions ---------- */
   function undoMove() {
-    if (!history.length) return;
-    const move = history.pop();
-    board[move.r][move.c] = 0;
-    currentPlayer = move.player; gameOver = false; winningCells = []; lastMove = null;
+    if (!history.length || thinking) return;
+    // In computer mode, undo both the computer's reply and the player's move.
+    let steps = mode === "cpu" && history[history.length-1].player === 2 ? 2 : 1;
+    while (steps-- > 0 && history.length) {
+      const move = history.pop();
+      board[move.r][move.c] = 0;
+      currentPlayer = move.player;
+    }
+    gameOver = false; winningCells = []; lastMove = null;
     renderBoard(); updateStatus(); updateControls(); showToast("Last move undone.");
   }
-  function resetGame() { initState(); showToast("Board reset. Player 1 starts!"); }
+  function resetGame() { initState(); showToast("Board reset. " + (mode==="cpu" ? "You start!" : "Player 1 starts!")); }
   function showToast(message) {
     const el = $("toast"); el.textContent=message; el.classList.add("show");
     clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.remove("show"),2100);
   }
+  function setPressed(container, attr, value) {
+    container.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset[attr]===value)));
+  }
+  function syncModeUI() {
+    ["modeSeg","modalModeSeg"].forEach(id => setPressed($(id),"mode",mode));
+    ["diffSeg","modalDiffSeg"].forEach(id => setPressed($(id),"diff",difficulty));
+    $("diffWrap").hidden = $("modalDiffWrap").hidden = mode !== "cpu";
+  }
+  function setMode(m, restart) { mode = m; syncModeUI(); if (restart) { initState(); showToast(m==="cpu" ? "Playing vs Computer — you go first!" : "Two-player mode."); } }
+  function setDifficulty(d, restart) { difficulty = d; syncModeUI(); if (restart) { initState(); showToast(`Difficulty: ${d}`); } }
 
+  /* ---------- Popup ---------- */
+  const modal = $("playModal");
+  function closeModal() {
+    modal.classList.add("closing");
+    setTimeout(() => { modal.hidden = true; modal.classList.remove("closing"); }, 260);
+    initState();
+    const first = boardEl.querySelector(".column:not(:disabled)"); if (first) first.focus({preventScroll:true});
+  }
+  $("playNowBtn").addEventListener("click", closeModal);
+  $("modalModeSeg").addEventListener("click", e => { const b = e.target.closest("[data-mode]"); if (b) setMode(b.dataset.mode, false); });
+  $("modalDiffSeg").addEventListener("click", e => { const b = e.target.closest("[data-diff]"); if (b) setDifficulty(b.dataset.diff, false); });
+  $("playNowBtn").focus();
+
+  /* ---------- Wiring ---------- */
+  $("modeSeg").addEventListener("click", e => { const b = e.target.closest("[data-mode]"); if (b && b.dataset.mode !== mode) setMode(b.dataset.mode, true); });
+  $("diffSeg").addEventListener("click", e => { const b = e.target.closest("[data-diff]"); if (b && b.dataset.diff !== difficulty) setDifficulty(b.dataset.diff, true); });
   $("themeList").addEventListener("click", e => {
     const btn = e.target.closest("[data-theme]");
     if (btn) applyTheme(btn.dataset.theme);
@@ -463,9 +659,10 @@ input[type="color"] { width:38px; height:32px; padding:2px; border-radius:8px; b
   animationsOn = !reducedMotion;
   $("animationToggle").checked = animationsOn;
   applyTheme("neon");
+  initState();
   applyPlayerColor(1,playerColors[1]);
   applyPlayerColor(2,playerColors[2]);
-  initState();
+  syncModeUI();
 })();
 </script>
 </body>
