@@ -25,14 +25,14 @@ button{font:inherit;cursor:pointer;touch-action:manipulation}.primary{border:0;b
 
 /* ---------- Splash screens ---------- */
 .splash{position:fixed;inset:0;z-index:100;background:#05080c;overflow:hidden}
-.splash.hidden{display:none}
+/* ID selectors below set display, so each needs its own .hidden rule (this was the bug that left screen 1 covering the game) */
+.splash.hidden,#splash1.hidden,#splash2.hidden,#splash3.hidden{display:none}
 #splash1{cursor:pointer;display:flex;align-items:center;justify-content:center}
 .s1-bg{position:absolute;inset:-30px;background:url("neon-run.jpg") center/cover no-repeat;filter:blur(26px) brightness(.45)}
 .s1-img{position:relative;width:100%;height:100%;object-fit:contain;display:block}
 .s1-hint{position:absolute;left:0;right:0;bottom:calc(22px + env(safe-area-inset-bottom,0px));text-align:center;font-size:clamp(11px,2.4vw,15px);font-weight:900;letter-spacing:4px;color:#fff;text-shadow:0 0 12px #42e8f5,0 2px 6px #000;animation:blink 1.3s ease-in-out infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
-.s2-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#05080c}
-.s2-shade{position:absolute;inset:0;background:linear-gradient(180deg,#05080c99,#05080ccc)}
+#splash2{background:radial-gradient(ellipse at 50% 0%,#1a2c40 0,#05080c 70%)}
 .s2-scroll{position:absolute;inset:0;overflow-y:auto;display:flex;padding:clamp(12px,3vw,28px);padding-top:calc(clamp(12px,3vw,28px) + env(safe-area-inset-top,0px));padding-bottom:calc(clamp(12px,3vw,28px) + env(safe-area-inset-bottom,0px));-webkit-overflow-scrolling:touch}
 .s2-panel{margin:auto;width:min(100%,780px);padding:clamp(18px,4vw,36px);border:1px solid #3c5a61;border-radius:16px;background:#0a1218e6;box-shadow:0 0 40px #42e8f533,0 20px 60px #000a}
 .s2-panel h2{margin:10px 0 4px;font-size:clamp(24px,5.5vw,42px);line-height:1;font-style:italic;font-weight:900;letter-spacing:-1px}.s2-panel h2 span{color:var(--cyan)}
@@ -44,26 +44,25 @@ button{font:inherit;cursor:pointer;touch-action:manipulation}.primary{border:0;b
 .how li{padding:10px 12px;border:1px solid #2b414a;background:#101a20;border-radius:9px;color:#b5c4c9;font-size:12px;line-height:1.55}
 .how b{display:block;color:var(--cyan);font-size:10px;letter-spacing:2px;margin-bottom:3px}
 .s2-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:center;margin-top:22px}
+/* Splash 3: full-screen video */
+#splash3{background:#000}
+.s3-video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000}
+.s3-bar{position:absolute;left:0;right:0;bottom:0;display:flex;gap:10px;justify-content:center;align-items:center;padding:14px;padding-bottom:calc(14px + env(safe-area-inset-bottom,0px));background:linear-gradient(180deg,transparent,#000b)}
 @media(max-width:650px){body{padding:9px}.controls{display:flex}.help{font-size:10px}.stat{padding:8px 9px}.stat strong{font-size:14px}canvas{aspect-ratio:4/3}.dialog p{font-size:12px}.how{grid-template-columns:1fr}}
 @media(hover:none){.controls{display:flex}}
 @media(prefers-reduced-motion:reduce){.s1-hint{animation:none}}
 </style></head>
 <body>
 
-<!-- Splash 1: title image -->
+<!-- Screen 1: title image -->
 <div class="splash" id="splash1" role="button" tabindex="0" aria-label="Neon Run title screen. Tap, click or press any key to continue.">
 <div class="s1-bg" aria-hidden="true"></div>
 <img class="s1-img" src="neon-run.jpg" alt="NEON RUN">
 <div class="s1-hint">TAP · CLICK · PRESS ANY KEY</div>
 </div>
 
-<!-- Splash 2: story video + instructions -->
+<!-- Screen 2: story + instructions -->
 <div class="splash hidden" id="splash2" role="dialog" aria-label="Story and instructions">
-<video class="s2-video" id="storyVideo"
-       src="cb.mp4"
-       playsinline
-       preload="auto"></video>
-<div class="s2-shade"></div>
 <div class="s2-scroll"><div class="s2-panel">
 <div class="kicker">THE LEGEND</div>
 <h2>NEON RUN: <span>The Crystal Hummingbird</span></h2>
@@ -84,10 +83,18 @@ button{font:inherit;cursor:pointer;touch-action:manipulation}.primary{border:0;b
 <li><b>BOSS</b>Dodge the Hummingbird's shards and dive. When it crashes, stomp it. Five hits wins!</li>
 </ul>
 <div class="s2-actions">
-<button class="primary" id="splashStart">CONTINUE ▶</button>
-<button class="small-button" id="splashSound" type="button" aria-pressed="false">🔊 SOUND ON</button>
+<button class="primary" id="splashContinue" type="button">CONTINUE ▶</button>
 </div>
 </div></div>
+</div>
+
+<!-- Screen 3: story video -->
+<div class="splash hidden" id="splash3" role="dialog" aria-label="Story video">
+<video class="s3-video" id="storyVideo" src="cb.mp4" playsinline preload="auto"></video>
+<div class="s3-bar">
+<button class="small-button" id="splashSound" type="button" aria-pressed="false">🔊 SOUND ON</button>
+<button class="primary" id="splashStart" type="button">SKIP / START ▶</button>
+</div>
 </div>
 
 <div class="app">
@@ -127,14 +134,20 @@ let player,platforms=[],orbs=[],enemies=[],hazards=[],goal=null,worldWidth=3000,
 const keys={left:false,right:false,jump:false},pad={left:false,right:false};
 let prevAct=false;
 
-/* ---------- Splash screens ---------- */
-let splashStage=0; // 0 = title image, 1 = story video, 2 = game
-const sp1=document.getElementById('splash1'),sp2=document.getElementById('splash2'),vid=document.getElementById('storyVideo');
-const sndBtn=document.getElementById('splashSound'),splashStart=document.getElementById('splashStart');
+/* ---------- Splash screens ----------
+   0 = title image, 1 = story + instructions, 2 = story video, 3 = game */
+let splashStage=0;
+const sp1=document.getElementById('splash1'),sp2=document.getElementById('splash2'),sp3=document.getElementById('splash3'),vid=document.getElementById('storyVideo');
+const sndBtn=document.getElementById('splashSound'),splashStart=document.getElementById('splashStart'),splashContinue=document.getElementById('splashContinue');
 function updateSnd(){const on=!vid.muted;sndBtn.textContent=on?'🔊 SOUND ON':'🔇 SOUND OFF';sndBtn.setAttribute('aria-pressed',String(!on));}
 function showStory(){
  if(splashStage!==0)return;
  splashStage=1;sp1.classList.add('hidden');sp2.classList.remove('hidden');
+ splashContinue.focus({preventScroll:true});
+}
+function showVideo(){
+ if(splashStage!==1)return;
+ splashStage=2;sp2.classList.add('hidden');sp3.classList.remove('hidden');
  vid.muted=false;vid.currentTime=0;
  const p=vid.play();
  if(p&&p.catch)p.catch(()=>{vid.muted=true;const q=vid.play();if(q&&q.catch)q.catch(()=>{});updateSnd();});
@@ -142,13 +155,15 @@ function showStory(){
  splashStart.focus({preventScroll:true});
 }
 function endSplash(){
- if(splashStage!==1)return;
- splashStage=2;vid.pause();sp2.classList.add('hidden');
+ if(splashStage!==2)return;
+ splashStage=3;vid.pause();sp3.classList.add('hidden');
  prevAct=true;startBtn.focus({preventScroll:true});
 }
 sp1.addEventListener('click',showStory);
-vid.addEventListener('error',()=>{vid.style.display='none';});
+splashContinue.addEventListener('click',showVideo);
 splashStart.addEventListener('click',endSplash);
+vid.addEventListener('ended',endSplash);
+vid.addEventListener('error',()=>{if(splashStage===2)endSplash();});
 sndBtn.addEventListener('click',()=>{vid.muted=!vid.muted;updateSnd();});
 
 const levelSpecs=[
@@ -163,7 +178,7 @@ function buildLevel(index){
  orbs=s.orbs.map(([x,y])=>({x,y,r:10,got:false,phase:Math.random()*6}));
  enemies=s.enemies.map(([x,y,min,max],i)=>({x,y,w:30,h:34,min,max,dir:i%2?-1:1,speed:70+i%3*15,alive:true,phase:i}));
  hazards=s.hazards.map(([x,y,w,h])=>({x,y,w,h}));
- goal=s.goal?{x:s.goal,y:platforms[platforms.length-1][1]-70,w:42,h:70}:null;
+ goal=s.goal?{x:s.goal,y:platforms[platforms.length-1].y-70,w:42,h:70}:null;
  boss=index===BOSS?{x:442,y:-80,w:76,h:56,hp:5,max:5,state:'enter',t:0,tx:0,shard:1.5,flap:0,grace:0}:null;
  shards=[];
  player={x:40,y:420,w:28,h:42,vx:0,vy:0,onGround:false,invuln:0,face:1,checkpoint:40};
@@ -318,8 +333,8 @@ function pollPad(){
   if(b(9))startNow=true;
  }
  const act=jumpNow||startNow;
- if(splashStage<2){
-  if(act&&!prevAct){if(splashStage===0)showStory();else endSplash();}
+ if(splashStage<3){
+  if(act&&!prevAct){if(splashStage===0)showStory();else if(splashStage===1)showVideo();else endSplash();}
   prevAct=act;pad.left=pad.right=false;return;
  }
  if(act&&!prevAct){if(state==='playing'){if(jumpNow)keys.jump=true;}else startGame();}
@@ -340,12 +355,16 @@ window.addEventListener('keydown',e=>{
   e.preventDefault();showStory();return;
  }
  if(splashStage===1){
+  if(e.key==='Enter'||e.key==='Escape'){e.preventDefault();showVideo();}
+  return;
+ }
+ if(splashStage===2){
   if(e.key==='Enter'||e.key==='Escape'){e.preventDefault();endSplash();}
   return;
  }
  setKey(e,true);
 },{passive:false});
-window.addEventListener('keyup',e=>{if(splashStage===2)setKey(e,false);},{passive:false});
+window.addEventListener('keyup',e=>{if(splashStage===3)setKey(e,false);},{passive:false});
 window.addEventListener('blur',()=>{keys.left=keys.right=keys.jump=false;});
 document.querySelectorAll('[data-control]').forEach(btn=>{
  const name=btn.dataset.control;
