@@ -7,7 +7,7 @@
 
 <title>STREET KINGS | Free 2D Arcade Fighting Game</title>
 
-<meta name="description" content="Enter STREET KINGS, a gritty 2D arcade fighting game featuring animated character sprites, punches, kicks, blocks, special moves, and rival AI. Choose your fighter and battle for street supremacy on mobile or desktop.">
+<meta name="description" content="Enter STREET KINGS, a gritty 2D arcade fighting game featuring animated character sprites, punches, kicks, blocks, special moves, and rival AI. Choose your fighter and battle for street supremacy on mobile, desktop or with a game controller.">
 <meta name="keywords" content="STREET KINGS game, Street Kings fighting game, 2D fighting game, free arcade fighting game, browser fighting game, animated sprite fighting, street battle game, rival AI, mobile fighting games, SENSTACK Games">
 <meta name="author" content="Saneca Mack">
 <meta name="robots" content="index, follow, max-image-preview:large">
@@ -103,7 +103,7 @@ canvas{display:block;width:100%;height:100%}
 <div class="movePad"><button class="btn blank" aria-hidden="true"></button><button class="btn" data-act="jump">JUMP</button><button class="btn blank" aria-hidden="true"></button><button class="btn" data-act="left">◀ LEFT</button><button class="btn" data-act="block">BLOCK</button><button class="btn" data-act="right">RIGHT ▶</button></div>
 <div class="actions"><button class="btn attack" data-act="punch">PUNCH</button><button class="btn attack" data-act="kick">KICK</button><button class="btn special" data-act="special">SPECIAL</button><button class="btn" data-act="dodge">DODGE</button><button class="btn" data-act="block">GUARD</button><button class="btn" data-act="rematch">REMATCH</button></div>
 </section>
-<div id="overlay" class="overlay"><div class="dialog"><h2>STREET <span style="color:var(--pink)">KINGS</span></h2><p>A mobile arcade fight. Beat the rival before the clock runs out. Pick your fighter, then step into the street.</p><button class="btn attack" id="startBtn">START FIGHT</button><button class="btn" id="customBtn">CHOOSE FIGHTERS</button><div id="imageStatus">Loading fighters…</div></div></div>
+<div id="overlay" class="overlay"><div class="dialog"><h2>STREET <span style="color:var(--pink)">KINGS</span></h2><p>A mobile arcade fight. Beat the rival before the clock runs out. Pick your fighter, then step into the street.</p><button class="btn attack" id="startBtn">START FIGHT</button><button class="btn" id="customBtn">CHOOSE FIGHTERS</button><div id="imageStatus">Loading fighters…</div><p style="font-size:11px;color:#a59db4;margin-bottom:0">Controller: stick/D-pad move · D-pad up jump · X punch · A kick · Y or RT special · B/LB/LT block · RB dodge · Start fight · Select fighters</p></div></div>
 <div id="charOverlay" class="overlay hidden"><div class="dialog"><h2>CHOOSE FIGHTERS</h2><h3>YOU</h3><div class="pick" id="pickYou"></div><h3>RIVAL</h3><div class="pick four" id="pickRival"></div><p id="charMsg">Tap a fighter. The new match starts when you press the button below.</p><button class="btn attack" id="closeChar">FIGHT!</button></div></div>
 </div>
 <script>
@@ -112,6 +112,9 @@ canvas{display:block;width:100%;height:100%}
    Each file is a transparent sheet, 6 columns x 9 rows of 300x200 cells.
    Put Dia.PNG, Bonnie.PNG, Rex.PNG, Beeper.PNG, Skylar.PNG and Sen.PNG in the same folder as this page. */
 const CW=300,CH=200,AX=115,SPR_SCALE=.95;
+/* FIGHTER SIZE: fighters fill about FILL of the stage height. Raise for bigger fighters.
+   REACH widens attack range and AI spacing so bigger sprites still connect naturally. */
+const FILL=.86,REACH=1.4,START=.25;
 const ORDER=['idle','walk','jump','punch','kick','block','hit','special','win'];
 const CHARS={
  DIA:{file:'Dia.PNG',color:'#c77dff',bright:1.45,frames:{idle:6,walk:6,jump:6,punch:5,kick:6,block:4,hit:5,special:5,win:2}},
@@ -134,7 +137,7 @@ if('ResizeObserver'in window)new ResizeObserver(resize).observe(stage);window.ad
 function $(id){return document.getElementById(id)}
 let running=false,ended=false,remaining=60,wins=0,last=0,shake=0;const keys={};
 const mk=(x,face,color,skin,pants)=>({x,y:0,hp:100,meter:0,face,act:'idle',actT:0,actDur:1,cool:0,block:false,dodge:0,jump:0,flash:0,char:null,won:false,ko:false,name:'',color,skin,pants});
-const p=mk(.27,1,'#ff3e83','#a86b48','#242032'),e=mk(.73,-1,'#58e8ef','#70462f','#171923');
+const p=mk(START,1,'#ff3e83','#a86b48','#242032'),e=mk(1-START,-1,'#58e8ef','#70462f','#171923');
 let sel={you:'DIA',rival:'RANDOM'};
 function assign(f,key){f.char=key;f.name=key}
 assign(p,'DIA');assign(e,'REX');
@@ -147,18 +150,18 @@ function applySelection(){
  if(r==='RANDOM'){const pool=KEYS.filter(k=>k!==sel.you);r=pool[Math.floor(Math.random()*pool.length)]}
  assign(e,r);
  p.color=CHARS[p.char].color;e.color=CHARS[e.char].color}
-function start(){applySelection();for(const f of [p,e]){f.hp=100;f.meter=0;f.act='idle';f.actT=0;f.cool=0;f.dodge=0;f.jump=0;f.block=false;f.won=false;f.ko=false;f.flash=0}p.x=.27;e.x=.73;remaining=60;ended=false;running=true;$('overlay').classList.add('hidden');$('charOverlay').classList.add('hidden');$('status').textContent='FIGHT!';announce('FIGHT!',p.name+' VS '+e.name,900);updateHud()}
-function endRound(winner){if(ended)return;ended=true;running=false;if(winner==='YOU'){wins++;p.won=true;e.ko=e.hp<=0;announce('YOU WIN!',p.name+' TAKES THE STREET',0)}else if(winner==='RIVAL'){e.won=true;p.ko=p.hp<=0;announce('KNOCKED OUT',e.name+' TAKES THIS ROUND',0)}else announce('TIME UP','ROUND DRAW',0);$('status').textContent='ROUND OVER';updateHud()}
+function start(){applySelection();for(const f of [p,e]){f.hp=100;f.meter=0;f.act='idle';f.actT=0;f.cool=0;f.dodge=0;f.jump=0;f.block=false;f.won=false;f.ko=false;f.flash=0}p.x=START;e.x=1-START;remaining=60;ended=false;running=true;$('overlay').classList.add('hidden');$('charOverlay').classList.add('hidden');$('status').textContent='FIGHT!';announce('FIGHT!',p.name+' VS '+e.name,900);updateHud()}
+function endRound(winner){if(ended)return;ended=true;running=false;if(winner==='YOU'){wins++;p.won=true;e.ko=e.hp<=0;announce('YOU WIN!',p.name+' TAKES THE STREET',0)}else if(winner==='RIVAL'){e.won=true;p.ko=p.hp<=0;rumble(1,400);announce('KNOCKED OUT',e.name+' TAKES THIS ROUND',0)}else announce('TIME UP','ROUND DRAW',0);$('status').textContent='ROUND OVER';updateHud()}
 function strike(who,type){if(!running||ended||who.cool>0||who.act==='hit')return;if(type==='special'&&who.meter<100){if(who===p)$('status').textContent='SPECIAL NEEDS FULL METER';return}if(type==='special')who.meter=0;who.act=type;who.actT=type==='kick'?.52:type==='special'?.72:.38;who.actDur=who.actT;who.cool=type==='special'?.95:type==='kick'?.62:.42;who.block=false;$('status').textContent=who===p?type.toUpperCase()+'!':'RIVAL '+type.toUpperCase()}
-function hit(att,def,type){const dist=Math.abs(att.x-def.x),reach=type==='kick'?.205:type==='special'?.24:.16;if(dist>reach||Math.abs(att.jump-def.jump)>.23||def.dodge>0)return false;if(def.block){def.hp-=type==='special'?3:1;att.meter=clamp(att.meter+8,0,100);return true}const damage=type==='special'?27:type==='kick'?14:9;def.hp=clamp(def.hp-damage,0,100);def.flash=.18;def.act='hit';def.actT=.22;def.actDur=.22;att.meter=clamp(att.meter+(type==='special'?5:type==='kick'?18:12),0,100);shake=type==='special'?9:4;return true}
+function hit(att,def,type){const dist=Math.abs(att.x-def.x),reach=(type==='kick'?.205:type==='special'?.24:.16)*REACH;if(dist>reach||Math.abs(att.jump-def.jump)>.23||def.dodge>0)return false;if(def.block){def.hp-=type==='special'?3:1;att.meter=clamp(att.meter+8,0,100);if(def===p)rumble(.25,60);return true}const damage=type==='special'?27:type==='kick'?14:9;def.hp=clamp(def.hp-damage,0,100);def.flash=.18;def.act='hit';def.actT=.22;def.actDur=.22;att.meter=clamp(att.meter+(type==='special'?5:type==='kick'?18:12),0,100);shake=type==='special'?9:4;if(def===p)rumble(type==='special'?1:.6,type==='special'?260:140);return true}
 function update(dt){if(!running||ended)return;remaining-=dt;if(remaining<=0){remaining=0;endRound(p.hp===e.hp?'DRAW':p.hp>e.hp?'YOU':'RIVAL');return}
 for(const f of [p,e]){f.cool=Math.max(0,f.cool-dt);f.flash=Math.max(0,f.flash-dt);f.dodge=Math.max(0,f.dodge-dt);f.jump=Math.max(0,f.jump-dt);if(f.actT>0){f.actT-=dt;if(f.actT<=0&&['punch','kick','special','hit','jump'].includes(f.act))f.act='idle'}}
-let move=0;if(keys.left||keys.ArrowLeft||keys.a||keys.A)move-=1;if(keys.right||keys.ArrowRight||keys.d||keys.D)move+=1;
+let move=0;if(keys.left||keys.ArrowLeft||keys.a||keys.A||GP.l)move-=1;if(keys.right||keys.ArrowRight||keys.d||keys.D||GP.r)move+=1;
 if(move&&p.dodge<=0){p.x+=move*dt*(p.act==='kick'?.17:.34);if(p.act==='idle'||p.act==='walk')p.act='walk'}else if(!move&&p.act==='walk')p.act='idle';
-if(keys.block||keys.s||keys.S||keys.ArrowDown){p.block=true;if(!['punch','kick','special','hit'].includes(p.act))p.act='block'}else{p.block=false;if(p.act==='block')p.act='idle'}
+if(keys.block||keys.s||keys.S||keys.ArrowDown||GP.blk){p.block=true;if(!['punch','kick','special','hit'].includes(p.act))p.act='block'}else{p.block=false;if(p.act==='block')p.act='idle'}
 p.x=clamp(p.x,.08,.92);e.x=clamp(e.x,.08,.92);p.face=e.x>=p.x?1:-1;e.face=-p.face;
 aiClock-=dt;const gap=Math.abs(e.x-p.x);
-if(e.cool<=0&&e.act!=='hit'&&e.dodge<=0){if(gap>.19){e.x+=(p.x>e.x?1:-1)*dt*.19;if(e.act==='idle'||e.act==='walk')e.act='walk'}else if(aiClock<=0){aiClock=.5+Math.random()*.75;const r=Math.random();if(r<.17){e.block=true;e.act='block'}else if(r<.28){e.dodge=.24;e.x=clamp(e.x+(p.x>e.x?-.055:.055),.08,.92);e.act='dodge'}else{e.block=false;strike(e,r>.84&&e.meter>=100?'special':r>.48?'kick':'punch')}}}
+if(e.cool<=0&&e.act!=='hit'&&e.dodge<=0){if(gap>.19*REACH){e.x+=(p.x>e.x?1:-1)*dt*.19*1.15;if(e.act==='idle'||e.act==='walk')e.act='walk'}else if(aiClock<=0){aiClock=.5+Math.random()*.75;const r=Math.random();if(r<.17){e.block=true;e.act='block'}else if(r<.28){e.dodge=.24;e.x=clamp(e.x+(p.x>e.x?-.055:.055),.08,.92);e.act='dodge'}else{e.block=false;strike(e,r>.84&&e.meter>=100?'special':r>.48?'kick':'punch')}}}
 if(e.act==='block'&&aiClock<.1&&e.cool<=0){e.block=false;e.act='idle'}
 for(const f of [p,e]){if(['punch','kick','special'].includes(f.act)&&f.actT>0){const window=f.act==='special'?.40:.20;if(f.actT<window&&f.actT>window-dt){hit(f,f===p?e:p,f.act)}}}
 if(p.act==='dodge'&&p.dodge<=0)p.act='idle';if(e.act==='dodge'&&e.dodge<=0)e.act='idle';
@@ -171,11 +174,13 @@ function frameFor(f,anim,frames,now){
  if(anim==='jump'){const prog=clamp(1-f.jump/.65,0,.999);return Math.floor(prog*frames)}
  return Math.floor(now/1000*(FPS[anim]||8))%frames}
 function drawSprite(c,anim,frame,s){const row=ORDER.indexOf(anim);ctx.drawImage(c.image,frame*CW,row*CH,CW,CH,-AX*s,-(CH-6)*s,CW*s,CH*s)}
+/* Fighter scale: fills FILL of the stage height, capped by stage width so they never swamp narrow phones */
+function fighterScale(){return Math.min(H*FILL/((CH-6)*SPR_SCALE),W/320)}
 function drawFighter(f,now){
-const x=f.x*W,ground=H*.79,scale=Math.min(W/650,H/330)*1.03,sy=ground-f.jump*H*.35;ctx.save();ctx.translate(x,sy);ctx.scale(f.face,1);
-if(f.dodge>0){ctx.globalAlpha=.55;ctx.translate(-f.face*13,4)}
+const x=f.x*W,ground=H*.92,scale=fighterScale(),sy=ground-f.jump*H*.3;ctx.save();ctx.translate(x,sy);ctx.scale(f.face,1);
+if(f.dodge>0){ctx.globalAlpha=.55;ctx.translate(-f.face*13*scale,4)}
 const bob=(f.act==='idle'&&!f.char)?Math.sin(now/220)*2:f.act==='walk'?Math.sin(now/65)*2:0;ctx.translate(0,bob);ctx.scale(scale,scale);
-ctx.globalAlpha*=.65;ctx.fillStyle='#05040a';ctx.beginPath();ctx.ellipse(0,2,31,7,0,0,Math.PI*2);ctx.fill();ctx.globalAlpha=f.flash>0?.65:1;
+ctx.globalAlpha*=.65;ctx.fillStyle='#05040a';ctx.beginPath();ctx.ellipse(0,2,31*1.3,7*1.3,0,0,Math.PI*2);ctx.fill();ctx.globalAlpha=f.flash>0?.65:1;
 const c=f.char&&CHARS[f.char];
 if(c&&c.ok){const anim=selectedAnimation(f);let frames=c.frames[anim]||1;
  /* a normal hit uses the flinch frames only; the last hit frame is the knocked-out pose */
@@ -195,11 +200,10 @@ function draw(){
 ctx.clearRect(0,0,W,H);const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#1a1730');g.addColorStop(.62,'#3b2440');g.addColorStop(1,'#15111c');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
 ctx.fillStyle='#ffb5cc';ctx.globalAlpha=.7;ctx.beginPath();ctx.arc(W*.78,H*.18,Math.min(W,H)*.055,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
 for(let i=0;i<15;i++){const bw=W/14+8,bx=i*W/13-W*.02,bh=H*(.16+((i*37)%9)/40);ctx.fillStyle=i%2?'#211c34':'#28203a';ctx.fillRect(bx,H*.55-bh,bw,bh);for(let yy=H*.55-bh+9;yy<H*.55-8;yy+=12)for(let xx=bx+6;xx<bx+bw-4;xx+=10){ctx.fillStyle=(Math.floor(xx+yy+i)%4===0)?'#ffbd66':'#6a4b72';ctx.globalAlpha=.55;ctx.fillRect(xx,yy,4,5);ctx.globalAlpha=1}}
-ctx.fillStyle='#191620';ctx.fillRect(0,H*.65,W,H*.35);ctx.strokeStyle='#7d496e';ctx.globalAlpha=.55;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,H*.78);ctx.lineTo(W,H*.78);ctx.stroke();ctx.globalAlpha=1;ctx.strokeStyle='#63556b';ctx.setLineDash([22,18]);ctx.beginPath();ctx.moveTo(0,H*.94);ctx.lineTo(W,H*.94);ctx.stroke();ctx.setLineDash([]);
-ctx.font='900 10px system-ui';ctx.textAlign='center';ctx.fillStyle=p.color;ctx.fillText(p.name,W*p.x,H*.13);ctx.fillStyle=e.color;ctx.fillText(e.name,W*e.x,H*.13);
+ctx.fillStyle='#191620';ctx.fillRect(0,H*.65,W,H*.35);ctx.strokeStyle='#7d496e';ctx.globalAlpha=.55;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,H*.86);ctx.lineTo(W,H*.86);ctx.stroke();ctx.globalAlpha=1;ctx.strokeStyle='#63556b';ctx.setLineDash([22,18]);ctx.beginPath();ctx.moveTo(0,H*.975);ctx.lineTo(W,H*.975);ctx.stroke();ctx.setLineDash([]);
 ctx.save();if(shake>0){ctx.translate((Math.random()-.5)*shake,(Math.random()-.5)*shake);shake=Math.max(0,shake-.8)}const now=performance.now();drawFighter(p,now);drawFighter(e,now);ctx.restore();requestAnimationFrame(draw)}
 requestAnimationFrame(draw);
-function frame(t){if(!last)last=t;const dt=Math.min((t-last)/1000,.04);last=t;update(dt);requestAnimationFrame(frame)}requestAnimationFrame(frame);
+function frame(t){if(!last)last=t;const dt=Math.min((t-last)/1000,.04);last=t;gpPoll();update(dt);requestAnimationFrame(frame)}requestAnimationFrame(frame);
 function act(a){
 if(a==='left'||a==='right'){keys[a]=true;return}
 if(a==='block'){keys.block=true;p.block=true;if(!['punch','kick','special','hit'].includes(p.act))p.act='block';return}
@@ -211,6 +215,36 @@ function release(a){keys[a]=false;if(a==='block'){p.block=false;if(p.act==='bloc
 document.querySelectorAll('[data-act]').forEach(b=>{const a=b.dataset.act;b.addEventListener('pointerdown',ev=>{ev.preventDefault();try{b.setPointerCapture(ev.pointerId)}catch(_){}b.classList.add('down');act(a)});const up=ev=>{b.classList.remove('down');release(a)};b.addEventListener('pointerup',up);b.addEventListener('pointercancel',up);b.addEventListener('lostpointercapture',up)});
 window.addEventListener('keydown',ev=>{const k=ev.key;if(['ArrowLeft','ArrowRight','ArrowDown','ArrowUp',' '].includes(k))ev.preventDefault();keys[k]=true;if(k==='j'||k==='J')strike(p,'punch');if(k==='k'||k==='K')strike(p,'kick');if(k==='i'||k==='I'||k===' ')act('special');if(k==='l'||k==='L'){keys.block=true;p.block=true;if(!['punch','kick','special','hit'].includes(p.act))p.act='block'}if(k==='w'||k==='W'||k==='ArrowUp')act('jump');if(k==='Escape'){$('overlay').classList.remove('hidden');running=false}});
 window.addEventListener('keyup',ev=>{keys[ev.key]=false;if(['l','L','ArrowDown','s','S'].includes(ev.key)){p.block=false;if(p.act==='block')p.act='idle'}});
+
+/* ---------- Gamepad ----------
+   Move: left stick / D-pad   Jump: D-pad up or stick up   Punch: X   Kick: A
+   Special: Y or RT           Block (hold): B / LB / LT     Dodge: RB
+   Start: fight / rematch     Select: choose fighters */
+const GP={l:false,r:false,blk:false,prev:[],pad:null};
+function rumble(strong,ms){const g=GP.pad,a=g&&(g.vibrationActuator||(g.hapticActuators&&g.hapticActuators[0]));try{if(a&&a.playEffect)a.playEffect('dual-rumble',{duration:ms,strongMagnitude:strong,weakMagnitude:strong*.6})}catch(_){}}
+window.addEventListener('gamepadconnected',()=>{$('status').textContent='CONTROLLER READY';rumble(.4,150)});
+window.addEventListener('gamepaddisconnected',()=>{GP.pad=null;GP.l=GP.r=GP.blk=false});
+function gpPoll(){
+ GP.l=GP.r=GP.blk=false;
+ const list=navigator.getGamepads?navigator.getGamepads():[];let g=null;
+ for(const q of list){if(q&&q.connected){g=q;break}}
+ GP.pad=g;if(!g)return;
+ const b=i=>!!(g.buttons[i]&&g.buttons[i].pressed),press=i=>b(i)&&!GP.prev[i];
+ const ax=g.axes[0]||0,ay=g.axes[1]||0;
+ GP.l=ax<-.3||b(14);GP.r=ax>.3||b(15);GP.blk=b(1)||b(4)||b(6);
+ const overlayOpen=!$('overlay').classList.contains('hidden'),pickerOpen=!$('charOverlay').classList.contains('hidden');
+ if(overlayOpen||pickerOpen){if(press(0)||press(9))start();else if(press(8)&&overlayOpen)openPicker()}
+ else{
+  if(press(9)&&ended)start();
+  else if(press(8)){running=false;openPicker()}
+  if(press(2))act('punch');
+  if(press(0))act('kick');
+  if(press(3)||press(7))act('special');
+  if(press(5))act('dodge');
+  if(press(12)||(ay<-.6&&!(GP.prev.up)))act('jump');
+ }
+ GP.prev=g.buttons.map(x=>x.pressed);GP.prev.up=ay<-.6;
+}
 
 /* ---------- Fighter picker ---------- */
 function thumb(key){const cv=document.createElement('canvas');cv.width=128;cv.height=144;const c=CHARS[key],x=cv.getContext('2d');if(c.ok){const s=.8;if(c.bright&&'filter'in x)x.filter='brightness('+c.bright+')';x.drawImage(c.image,0,0,CW,CH,64-AX*s,138-(CH-6)*s,CW*s,CH*s)}else{x.fillStyle=c.color;x.fillRect(44,30,40,100)}return cv}
@@ -224,7 +258,7 @@ function buildPicker(){
    b.addEventListener('click',()=>{sel[who]=k;buildPicker()});box.appendChild(b)}}
 }
 buildPicker();
-const openPicker=()=>{buildPicker();$('charOverlay').classList.remove('hidden')};
+function openPicker(){buildPicker();$('charOverlay').classList.remove('hidden')}
 $('startBtn').onclick=start;$('customBtn').onclick=openPicker;$('menuBtn').onclick=()=>{running=false;openPicker()};$('closeChar').onclick=start;
 updateHud();
 
