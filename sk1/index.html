@@ -471,7 +471,19 @@ function skLoadSheet(character, action) {
   texture.wrapT = THREE.ClampToEdgeWrapping;
   const filename = definition.prefix + '-' + action + '.png';
   const sheet = {image, texture, ready:false};
-  image.onload = () => { sheet.ready = true; texture.needsUpdate = true; };
+  image.onload = () => {
+  sheet.ready = true;
+  texture.needsUpdate = true;
+
+  // Refresh the current fighter frame after the image loads
+  if (typeof P !== 'undefined' && P.character === character) {
+    P.animFrame = -1;
+  }
+
+  if (typeof E !== 'undefined' && E.character === character) {
+    E.animFrame = -1;
+  }
+};
   image.onerror = () => console.warn('Sprite not found:', SK_SPRITE_ROOT + filename);
   image.src = SK_SPRITE_ROOT + filename;
   SK_SHEETS[key] = sheet;
