@@ -213,6 +213,41 @@ canvas { display: block; position: fixed; inset: 0; width: 100%; height: 100%; }
 #skRadio.err { border-color: var(--red); color: var(--red); box-shadow: 0 0 10px #ff3b5c66; }
 @keyframes skPulse { 0%,100% { box-shadow: 0 0 6px #6dffc866; } 50% { box-shadow: 0 0 16px #6dffc8cc; } }
 @keyframes skBlink { 50% { opacity: .45; } }
+
+  #fighterSelect {
+  width: min(100%, 360px);
+}
+
+.pickTitle {
+  color: var(--gold);
+  font-size: 13px;
+  letter-spacing: 2px;
+  margin-bottom: 10px;
+}
+
+.fighterOptions {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.fighterPick {
+  flex: 1;
+  min-width: 0;
+  padding: 12px 5px;
+  background: #101a2b;
+  border: 2px solid #53677c;
+  color: white;
+  font-family: Impact, sans-serif;
+  font-size: 16px;
+  letter-spacing: 1px;
+}
+
+.fighterPick.selected {
+  border-color: var(--gold);
+  background: #145b4b;
+  box-shadow: 0 0 14px #6dffc855;
+}
 </style>
 </head>
 <body>
@@ -249,6 +284,14 @@ canvas { display: block; position: fixed; inset: 0; width: 100%; height: 100%; }
 <div id="menu">
   <h1>GARDEN OF<br>TERROR</h1>
   <p id="mtxt"></p>
+  <div id="fighterSelect">
+  <div class="pickTitle">CHOOSE YOUR FIGHTER</div>
+  <div class="fighterOptions">
+    <button class="fighterPick selected" data-fighter="Gontor">GONTOR</button>
+    <button class="fighterPick" data-fighter="TRX">TRX</button>
+    <button class="fighterPick" data-fighter="Root">ROOT</button>
+  </div>
+</div>
   <button class="btn" id="go">START FIGHT</button>
   <button class="btn alt" id="nx" style="display:none">NEXT FIGHTER</button>
   <p>
