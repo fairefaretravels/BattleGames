@@ -343,7 +343,7 @@ const rnd = Math.random;
 
 /* FIGHTER SIZE: raise this to make everyone bigger. Ranges, hitboxes,
    projectiles, AI distances and camera all scale with it. */
-const BIG = 2.2;
+const BIG = 2.5;
 
 const R = new THREE.WebGLRenderer({antialias:true, alpha:true});
 R.setPixelRatio(Math.min(devicePixelRatio, 2));
@@ -441,7 +441,18 @@ const OPP = [
 ];
 
 /* SPRITE SHEET FIGHTERS — ./sprites/, each sheet 5x5 = 25 frames */
-const SK_SPRITE_ROOT = './sprites/';
+const SK_SPRITE_ROOTS = ['./sprites/', './sk1/sprites/', '/sk1/sprites/'];
+let SK_ROOT_OK = null;      // first root that actually served an image
+/* SPRITE-ONLY enlargement (~35%). Applied to the sprite mesh only, so BIG, hitboxes,
+   attack ranges, AI distances and movement are untouched. */
+const SK_VISUAL = 1.35;
+const SK_BILLBOARD = true;  // yaw each sprite to face the camera (removes off-axis foreshortening)
+const SK_FALLBACK = {
+  punch:['kick'], kick:['punch'], walk:['run'], death:['fall','hit_react'],
+  fall:['death','hit_react'], victory:['dance'], block:['crouch']
+};
+const SK_WARNED = {};
+function skWarnOnce(k, msg) { if (!SK_WARNED[k]) { SK_WARNED[k] = 1; console.warn(msg); } }
 const SK_CHARACTERS = {
   Gontor: {
     prefix: 'Gontor',
@@ -457,6 +468,29 @@ const SK_CHARACTERS = {
   }
 };
 const SK_SHEETS = {};
+function skInspect(sheet) {
+  const im = sheet.image, w = im.naturalWidth, h = im.naturalHeight;
+  sheet.w = w; sheet.h = h;
+  if (!w || !h) { console.warn('[sprites] ' + sheet.filename + ' loaded with zero size'); return; }
+  if (w % 5 || h % 5) console.warn('[sprites] ' + sheet.filename + ' is ' + w + 'x' + h + ' (not divisible by 5): 5x5 grid may bleed between frames');
+  try {   // count trailing blank cells so a short sheet (e.g. 23 frames) never shows an empty frame
+    const c = document.createElement('canvas'); c.width = c.height = 100;
+    const x = c.getContext('2d', {willReadFrequently:true});
+    x.drawImage(im, 0, 0, 100, 100);
+    const d = x.getImageData(0, 0, 100, 100).data;
+    let last = -1;
+    for (let f = 0; f < 25; f++) {
+      const cx = (f % 5) * 20, cy = ((f / 5) | 0) * 20;
+      let ink = false;
+      for (let yy = 0; yy < 20 && !ink; yy++)
+        for (let xx = 0; xx < 20; xx++)
+          if (d[((cy + yy) * 100 + cx + xx) * 4 + 3] > 8) { ink = true; break; }
+      if (ink) last = f;
+    }
+    if (last >= 0) sheet.frames = last + 1;
+    if (sheet.frames < 25) console.info('[sprites] ' + sheet.filename + ' has ' + sheet.frames + ' usable frames (rest blank); animation remapped');
+  } catch (e) { /* canvas tainted (file://): keep 25 */ }
+}
 function skLoadSheet(character, action) {
   const definition = SK_CHARACTERS[character];
   if (!definition || !definition.actions.includes(action)) return null;
@@ -470,23 +504,29 @@ function skLoadSheet(character, action) {
   texture.wrapS = THREE.ClampToEdgeWrapping;
   texture.wrapT = THREE.ClampToEdgeWrapping;
   const filename = definition.prefix + '-' + action + '.png';
-  const sheet = {image, texture, ready:false};
+  const sheet = {key, filename, image, texture, ready:false, failed:false, frames:25, tried:[], w:0, h:0};
+  const roots = SK_ROOT_OK ? [SK_ROOT_OK].concat(SK_SPRITE_ROOTS.filter(r => r !== SK_ROOT_OK)) : SK_SPRITE_ROOTS;
+  let attempt = 0;
+  const tryNext = () => {
+    if (attempt >= roots.length) {
+      sheet.failed = true;
+      console.error('[sprites] FAILED to load ' + filename + ' (' + key + '). Tried: ' + sheet.tried.join(' | ') +
+        '. Check the file exists in sk1/sprites/, the name/case matches exactly, and the page is served over http(s).');
+      return;
+    }
+    const url = roots[attempt++] + filename;
+    sheet.tried.push(new URL(url, document.baseURI).href);
+    image.src = url;
+  };
   image.onload = () => {
-  sheet.ready = true;
-  texture.needsUpdate = true;
-
-  // Refresh the current fighter frame after the image loads
-  if (typeof P !== 'undefined' && P.character === character) {
-    P.animFrame = -1;
-  }
-
-  if (typeof E !== 'undefined' && E.character === character) {
-    E.animFrame = -1;
-  }
-};
-  image.onerror = () => console.warn('Sprite not found:', SK_SPRITE_ROOT + filename);
-  image.src = SK_SPRITE_ROOT + filename;
+    sheet.ready = true;
+    texture.needsUpdate = true;
+    if (!SK_ROOT_OK) SK_ROOT_OK = roots[attempt - 1];
+    skInspect(sheet);
+  };
+  image.onerror = tryNext;
   SK_SHEETS[key] = sheet;
+  tryNext();
   return sheet;
 }
 function skAvailable(character, action) {
@@ -495,6 +535,13 @@ function skAvailable(character, action) {
 Object.keys(SK_CHARACTERS).forEach(c => {
   ['idle','walk','punch','kick','block','hit_react','death','fall','victory'].forEach(a => skLoadSheet(c, a));
 });
+window.skDiag = () => console.table(Object.values(SK_SHEETS).map(v =>
+  ({sheet:v.key, file:v.filename, ready:v.ready, failed:v.failed, size:v.w + 'x' + v.h, frames:v.frames, url:v.tried[v.tried.length - 1]})));
+setTimeout(() => {
+  const bad = Object.values(SK_SHEETS).filter(v => !v.ready);
+  if (bad.length) console.warn('[sprites] ' + bad.length + ' sheet(s) not ready after 4s: ' + bad.map(v => v.filename + (v.failed ? ' (failed)' : ' (pending)')).join(', ') + '. Run skDiag() for details.');
+  else console.info('[sprites] all ' + Object.keys(SK_SHEETS).length + ' sheets loaded. skDiag() for details.');
+}, 4000);
 
 /* FIGHTER CLASS */
 class F {
@@ -504,14 +551,17 @@ class F {
     this.tex = new THREE.Texture();
     this.spr = new THREE.Mesh(
       new THREE.PlaneGeometry(3.2, 3.2),
-      new THREE.MeshBasicMaterial({map:this.tex, transparent:true, alphaTest:.04, side:THREE.DoubleSide, color:0xffffff})
+      new THREE.MeshBasicMaterial({map:this.tex, transparent:true, alphaTest:.04, side:THREE.DoubleSide, color:0xffffff, depthWrite:false})
     );
-    this.spr.position.set(0, 1.6, 0);
+    this.spr.renderOrder = 2;
+    this.curSheet = null;
+    this.spr.position.set(0, 1.6 * SK_VISUAL, 0);   // feet stay on the ground after the visual scale-up
     this.g.add(this.spr);
     const shadow = new THREE.Mesh(
-      new THREE.CircleGeometry(1.05, 20),
-      new THREE.MeshBasicMaterial({color:0x000000, transparent:true, opacity:.4})
+      new THREE.CircleGeometry(1.05 * SK_VISUAL, 20),
+      new THREE.MeshBasicMaterial({color:0x000000, transparent:true, opacity:.4, depthWrite:false})
     );
+    shadow.renderOrder = 1;
     shadow.rotation.x = -Math.PI / 2;
     shadow.position.y = .03;
     this.g.add(shadow);
@@ -532,28 +582,51 @@ class F {
     this.character = character;
     this.animAction = '';
     this.animFrame = -1;
+    this.curSheet = null;
     this.setAnimation('idle');
   }
-  setAnimation(action) {
-    if (!skAvailable(this.character, action)) action = 'idle';
-    if (this.animAction === action) return;
-    this.animAction = action;
-    this.animFrame = -1;
-    const sheet = skLoadSheet(this.character, action);
-    if (sheet) {
-      this.tex = sheet.texture;
-      this.spr.material.map = this.tex;
-      this.spr.material.needsUpdate = true;
+  setAnimation(requested) {
+    // pick the first usable sheet: requested -> fallbacks -> idle. Never swap in a sheet that is not loaded.
+    const chain = [requested].concat(SK_FALLBACK[requested] || [], 'idle');
+    let pick = null, pending = null;
+    for (const a of chain) {
+      if (!skAvailable(this.character, a)) continue;
+      const s = skLoadSheet(this.character, a);
+      if (!s || s.failed) continue;
+      if (s.ready) { pick = {a, s}; break; }
+      if (!pending) pending = {a, s};
+    }
+    const mat = this.spr.material;
+    if (pick) {
+      if (pick.a !== requested) skWarnOnce(this.character + requested, '[sprites] ' + this.character + ' has no usable "' + requested + '" sheet; showing "' + pick.a + '" instead');
+      if (this.curSheet !== pick.s) {
+        this.curSheet = pick.s;
+        this.tex = pick.s.texture;
+        mat.map = this.tex;
+        mat.color.setHex(0xffffff);
+        mat.opacity = 1;
+        mat.needsUpdate = true;
+      }
+      this.animAction = pick.a;
+    } else if (!pending && mat.map) {
+      console.error('[sprites] No usable sprite sheet for ' + this.character + ' (wanted "' + requested + '"). Showing red placeholder. Run skDiag().');
+      this.curSheet = null;
+      mat.map = null;
+      mat.color.setHex(0xff3b5c);
+      mat.opacity = .35;
+      mat.needsUpdate = true;
     }
   }
   fr(i) {
-    const sheet = SK_SHEETS[this.character + ':' + this.animAction];
+    const sheet = this.curSheet;
     if (!sheet || !sheet.ready) return;
-    const frame = Math.max(0, Math.min(24, i | 0));
+    const n = sheet.frames || 25;
+    const frame = Math.max(0, Math.min(n - 1, Math.floor((i | 0) * n / 25)));
     const col = frame % 5;
     const row = Math.floor(frame / 5);
-    this.tex.repeat.set(.2, .2);
-    this.tex.offset.set(col*.2, 1-(row+1)*.2);
+    const ix = .5 / (sheet.w || 1280), iy = .5 / (sheet.h || 1280);   // half-texel inset: no bleed from neighbouring frames
+    this.tex.repeat.set(.2 - 2 * ix, .2 - 2 * iy);
+    this.tex.offset.set(col * .2 + ix, 1 - (row + 1) * .2 + iy);
     this.animFrame = frame;
   }
   reset(x, z) {
@@ -719,7 +792,8 @@ class F {
     }
     this.setAnimation(action);
     this.fr(frame);
-    this.spr.scale.x = this.dir < 0 ? -1 : 1;
+    this.spr.scale.set(this.dir < 0 ? -SK_VISUAL : SK_VISUAL, SK_VISUAL, 1);
+    if (SK_BILLBOARD) this.spr.rotation.y = Math.atan2(cam.position.x - this.g.position.x, cam.position.z - this.g.position.z);
   }
 }
 
@@ -1063,15 +1137,22 @@ function frame() {
   P.pose(T);
   E.pose(T);
 
-  /* CAMERA: keeps both big fighters in frame */
+  /* CAMERA: keeps both fighters (and their enlarged sprites) in frame, between HUD and touch controls */
   const mid = (P.g.position.x+E.g.position.x)/2;
-  const halfH = Math.tan(cam.fov*Math.PI/360);
-  const zc = Math.max(
-    5.2*BIG,
-    (dd/2+2.2*BIG)/(halfH*cam.aspect)
-  );
-  tp.set(mid, 1.9*BIG + zc*.06, zc);
-  tl.set(mid, 1.5*BIG, 0);
+  const halfT = Math.tan(cam.fov*Math.PI/360);
+  const plane = 3.2 * SK_VISUAL * Math.max(P.g.scale.x, E.g.scale.x);   // world size of the biggest sprite
+  const touch = $('ctrl').style.display === 'block';
+  const wide = cam.aspect > 1.2;
+  const topPx = wide ? 60 : 84;
+  const botPx = touch && !wide ? 118 : 0;
+  const avail = Math.max(.4, (innerHeight - topPx - botPx) / innerHeight);
+  const zH = 1.04 * (dd/2 + .36*plane) / (halfT*cam.aspect);   // both bodies fit horizontally
+  const zV = plane / (2*halfT*avail);                          // tallest sprite fits between HUD and controls
+  const zc = Math.max(5.2*BIG, zH, zV);
+  const cy = plane * .48;
+  const shift = (botPx - topPx) / innerHeight * zc * halfT;    // centre fighters in the free band
+  tl.set(mid, cy - shift, 0);
+  tp.set(mid, tl.y + 1.0 + zc*.06, zc + Math.max(0, P.g.position.z, E.g.position.z));
   const k = 1-Math.exp(-7*rawDt);
   cp.lerp(tp,k);
   cl.lerp(tl,k);
