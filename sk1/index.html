@@ -116,41 +116,150 @@ canvas { display: block; position: fixed; inset: 0; width: 100%; height: 100%; }
 }
 .btn.alt:active { box-shadow: 0 1px 0 #150a33; }
 
-/* TOUCH CONTROLS */
+
+/* COMPACT TOUCH CONTROLS */
 #ctrl {
-  position: fixed; inset: auto 0 0 0; height: 190px;
-  pointer-events: none; display: none;
+  position: fixed;
+  inset: auto 0 0 0;
+  height: 112px;
+  pointer-events: none;
+  display: none;
   padding-bottom: env(safe-area-inset-bottom, 0px);
-  font-family: Impact, "Arial Narrow", sans-serif; z-index: 4;
+  font-family: Impact, "Arial Narrow", sans-serif;
+  z-index: 4;
 }
+
+/* Compact joystick */
 #pad {
-  position: absolute; left: 18px; bottom: calc(env(safe-area-inset-bottom, 0px) + 18px);
-  width: 130px; height: 130px; border-radius: 50%;
+  position: absolute;
+  left: 12px;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 10px);
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
   background: radial-gradient(circle, #29293cdd, #11111bcc);
-  border: 2px solid #ffffff55; box-shadow: inset 0 0 18px #0008, 0 0 15px #0005;
-  pointer-events: auto; touch-action: none;
+  border: 2px solid #ffffff55;
+  box-shadow: inset 0 0 12px #0008, 0 0 10px #0005;
+  pointer-events: auto;
+  touch-action: none;
 }
+
 #knob {
-  position: absolute; left: 35px; top: 35px; width: 60px; height: 60px; border-radius: 50%;
+  position: absolute;
+  left: 23px;
+  top: 23px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
   background: linear-gradient(145deg, #fff, #aaaabc);
-  border: 2px solid #ffffffcc; box-shadow: 0 3px 10px #0009; pointer-events: none;
+  border: 2px solid #ffffffcc;
+  box-shadow: 0 3px 8px #0009;
+  pointer-events: none;
 }
+
+/* Compact action buttons */
 .ab {
-  position: absolute; display: flex; align-items: center; justify-content: center;
-  border-radius: 50%; border: 2px solid #ffffffcc; color: #fff;
-  font-size: 14px; font-weight: 700; letter-spacing: 1px; text-shadow: 0 2px 3px #000b;
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 2px solid #ffffffcc;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-shadow: 0 2px 3px #000b;
   background: linear-gradient(145deg, #383849ee, #11111bee);
-  box-shadow: inset 0 1px 3px #ffffff22, 0 4px 8px #0008;
-  pointer-events: auto; touch-action: none; user-select: none; -webkit-user-select: none;
+  box-shadow: inset 0 1px 3px #ffffff22, 0 3px 6px #0008;
+  pointer-events: auto;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
   -webkit-tap-highlight-color: transparent;
 }
-.ab.on { background: linear-gradient(145deg, #6dffc8, #1f9a78); border-color: #fff; box-shadow: inset 0 0 10px #ffffff33, 0 0 16px #3dffc0aa; }
-#bP { right: 88px; bottom: calc(env(safe-area-inset-bottom, 0px) + 28px); width: 74px; height: 74px; background: linear-gradient(145deg, #8a5cff, #3a1c80); }
-#bK { right: 14px; bottom: calc(env(safe-area-inset-bottom, 0px) + 60px); width: 74px; height: 74px; background: linear-gradient(145deg, #6dffc8, #1f7a5c); color: #07110d; text-shadow: none; }
-#bB { right: 150px; bottom: calc(env(safe-area-inset-bottom, 0px) + 90px); width: 58px; height: 58px; background: linear-gradient(145deg, #4a7bff, #1a2a7a); }
-#bS { right: 62px; bottom: calc(env(safe-area-inset-bottom, 0px) + 118px); width: 66px; height: 66px; background: linear-gradient(145deg, #ffb454, #9a4a10); color: #17100a; text-shadow: none; }
-#bW { right: 14px; bottom: calc(env(safe-area-inset-bottom, 0px) + 140px); width: 40px; height: 40px; font-size: 10px; letter-spacing: 0; }
-@media (prefers-reduced-motion: reduce) { .btn { transition: none; } }
+
+.ab.on {
+  background: linear-gradient(145deg, #6dffc8, #1f9a78);
+  border-color: #fff;
+  box-shadow: inset 0 0 8px #ffffff33, 0 0 12px #3dffc0aa;
+}
+
+/* Primary buttons */
+#bP {
+  right: 65px;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
+  width: 54px;
+  height: 54px;
+  background: linear-gradient(145deg, #8a5cff, #3a1c80);
+}
+
+#bK {
+  right: 10px;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 25px);
+  width: 58px;
+  height: 58px;
+  background: linear-gradient(145deg, #6dffc8, #1f7a5c);
+  color: #07110d;
+  text-shadow: none;
+}
+
+/* Secondary buttons */
+#bB {
+  right: 119px;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 55px);
+  width: 42px;
+  height: 42px;
+  background: linear-gradient(145deg, #4a7bff, #1a2a7a);
+}
+
+#bS {
+  right: 9px;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 88px);
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(145deg, #ffb454, #9a4a10);
+  color: #17100a;
+  text-shadow: none;
+}
+
+#bW {
+  right: 64px;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 77px);
+  width: 34px;
+  height: 34px;
+  font-size: 8px;
+  letter-spacing: 0;
+}
+
+@media (max-width: 380px) {
+  #pad {
+    width: 78px;
+    height: 78px;
+  }
+
+  #knob {
+    left: 19px;
+    top: 19px;
+    width: 36px;
+    height: 36px;
+  }
+
+  #bP {
+    right: 59px;
+    width: 49px;
+    height: 49px;
+  }
+
+  #bK {
+    width: 52px;
+    height: 52px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn { transition: none; }
+}
 
 /* RADIO SWITCH */
 #skRadio {
@@ -234,7 +343,7 @@ const rnd = Math.random;
 
 /* FIGHTER SIZE: raise this to make everyone bigger. Ranges, hitboxes,
    projectiles, AI distances and camera all scale with it. */
-const BIG = 1.8;
+const BIG = 2.5;
 
 const R = new THREE.WebGLRenderer({antialias:true, alpha:true});
 R.setPixelRatio(Math.min(devicePixelRatio, 2));
@@ -782,10 +891,10 @@ const kn = $('knob');
 let pid = null;
 function pm(e) {
   const r = pad.getBoundingClientRect();
-  let x = e.clientX-r.left-65;
-  let y = e.clientY-r.top-65;
+  let x = e.clientX-r.left-44;
+  let y = e.clientY-r.top-44;
   const l = Math.hypot(x,y);
-  const mx = 50;
+  const mx = 32;
   if (l > mx) { x *= mx/l; y *= mx/l; }
   kn.style.transform = `translate(${x}px,${y}px)`;
   stick.x = Math.abs(x)>8 ? x/mx : 0;
