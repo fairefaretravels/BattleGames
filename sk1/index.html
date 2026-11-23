@@ -117,34 +117,34 @@ canvas { display: block; position: fixed; inset: 0; width: 100%; height: 100%; }
 .btn.alt:active { box-shadow: 0 1px 0 #150a33; }
 
 
-/* COMPACT TOUCH CONTROLS */
+/* DUAL JOYSTICK MOBILE CONTROLS */
 #ctrl {
   position: fixed;
-  inset: auto 0 0 0;
-  height: 112px;
+  inset: auto 0 0;
+  height: 140px;
   pointer-events: none;
   display: none;
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-  font-family: Impact, "Arial Narrow", sans-serif;
   z-index: 4;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-/* Compact joystick */
-#pad {
+#pad, #combatPad {
   position: absolute;
-  left: 12px;
-  bottom: calc(env(safe-area-inset-bottom, 0px) + 10px);
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
   width: 88px;
   height: 88px;
   border-radius: 50%;
-  background: radial-gradient(circle, #29293cdd, #11111bcc);
-  border: 2px solid #ffffff55;
-  box-shadow: inset 0 0 12px #0008, 0 0 10px #0005;
+  background: radial-gradient(circle, #303047ee, #10101bcc);
+  border: 2px solid #ffffff77;
+  box-shadow: inset 0 0 12px #0008, 0 0 12px #0008;
   pointer-events: auto;
   touch-action: none;
 }
 
-#knob {
+#pad { left: 12px; }
+#combatPad { right: 12px; }
+
+#knob, #combatKnob {
   position: absolute;
   left: 23px;
   top: 23px;
@@ -157,108 +157,41 @@ canvas { display: block; position: fixed; inset: 0; width: 100%; height: 100%; }
   pointer-events: none;
 }
 
-/* Compact action buttons */
-.ab {
-  position: absolute;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  border: 2px solid #ffffffcc;
-  color: #fff;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0;
-  text-shadow: 0 2px 3px #000b;
-  background: linear-gradient(145deg, #383849ee, #11111bee);
-  box-shadow: inset 0 1px 3px #ffffff22, 0 3px 6px #0008;
-  pointer-events: auto;
-  touch-action: none;
-  user-select: none;
-  -webkit-user-select: none;
-  -webkit-tap-highlight-color: transparent;
+#combatKnob {
+  background: linear-gradient(145deg, #ffb9ed, #9b43a0);
 }
 
-.ab.on {
-  background: linear-gradient(145deg, #6dffc8, #1f9a78);
-  border-color: #fff;
-  box-shadow: inset 0 0 8px #ffffff33, 0 0 12px #3dffc0aa;
-}
-
-/* Primary buttons */
-#bP {
-  right: 65px;
-  bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
-  width: 54px;
-  height: 54px;
-  background: linear-gradient(145deg, #8a5cff, #3a1c80);
-}
-
-#bK {
-  right: 10px;
-  bottom: calc(env(safe-area-inset-bottom, 0px) + 25px);
-  width: 58px;
-  height: 58px;
-  background: linear-gradient(145deg, #6dffc8, #1f7a5c);
-  color: #07110d;
-  text-shadow: none;
-}
-
-/* Secondary buttons */
-#bB {
-  right: 119px;
-  bottom: calc(env(safe-area-inset-bottom, 0px) + 55px);
-  width: 42px;
-  height: 42px;
-  background: linear-gradient(145deg, #4a7bff, #1a2a7a);
-}
-
-#bS {
-  right: 9px;
-  bottom: calc(env(safe-area-inset-bottom, 0px) + 88px);
-  width: 44px;
-  height: 44px;
-  background: linear-gradient(145deg, #ffb454, #9a4a10);
-  color: #17100a;
-  text-shadow: none;
+#combatPad.active {
+  border-color: #ffb9ed;
+  box-shadow: 0 0 14px #d85bff88;
 }
 
 #bW {
-  right: 64px;
-  bottom: calc(env(safe-area-inset-bottom, 0px) + 77px);
-  width: 34px;
-  height: 34px;
-  font-size: 8px;
-  letter-spacing: 0;
+  position: absolute;
+  right: 29px;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 106px);
+  width: 54px;
+  height: 25px;
+  border-radius: 20px;
+  font-size: 9px;
+  background: #49304e;
+  color: white;
+  pointer-events: auto;
+  touch-action: none;
 }
 
-@media (max-width: 380px) {
-  #pad {
+@media(max-width:380px) {
+  #pad, #combatPad {
     width: 78px;
     height: 78px;
   }
 
-  #knob {
-    left: 19px;
-    top: 19px;
+  #knob, #combatKnob {
     width: 36px;
     height: 36px;
+    left: 19px;
+    top: 19px;
   }
-
-  #bP {
-    right: 59px;
-    width: 49px;
-    height: 49px;
-  }
-
-  #bK {
-    width: 52px;
-    height: 52px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .btn { transition: none; }
 }
 
 /* RADIO SWITCH */
@@ -325,14 +258,16 @@ canvas { display: block; position: fixed; inset: 0; width: 100%; height: 100%; }
   </p>
 </div>
 
-<!-- MOBILE CONTROLS -->
-<div id="ctrl">
-  <div id="pad"><div id="knob"></div></div>
-  <div class="ab" id="bP">PUNCH</div>
-  <div class="ab" id="bK">KICK</div>
-  <div class="ab" id="bB">BLOCK</div>
-  <div class="ab" id="bS">SP</div>
-  <div class="ab" id="bW">SWAP</div>
+<!-- MOBILE CONTROLS --><div id="ctrl">
+  <div id="pad" aria-label="Movement joystick">
+    <div id="knob"></div>
+  </div>
+
+  <div id="combatPad" aria-label="Combat joystick">
+    <div id="combatKnob"></div>
+  </div>
+
+  <div class="ab" id="bW">NEXT SP</div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -974,39 +909,123 @@ function pin() {
 }
 const pad = $('pad');
 const kn = $('knob');
+
+const combatPad = $('combatPad');
+const combatKnob = $('combatKnob');
+
 let pid = null;
-function pm(e) {
-  const r = pad.getBoundingClientRect();
-  let x = e.clientX-r.left-44;
-  let y = e.clientY-r.top-44;
-  const l = Math.hypot(x,y);
-  const mx = 32;
-  if (l > mx) { x *= mx/l; y *= mx/l; }
-  kn.style.transform = `translate(${x}px,${y}px)`;
-  stick.x = Math.abs(x)>8 ? x/mx : 0;
-  stick.y = Math.abs(y)>8 ? y/mx : 0;
+let combatPid = null;
+let combatAction = '';
+
+function moveStick(e, element, knob) {
+  const r = element.getBoundingClientRect();
+  const cx = r.width / 2;
+  const cy = r.height / 2;
+
+  let x = e.clientX - r.left - cx;
+  let y = e.clientY - r.top - cy;
+
+  const max = Math.min(cx, cy) - knob.offsetWidth / 2 - 2;
+  const len = Math.hypot(x, y);
+
+  if (len > max) {
+    x *= max / len;
+    y *= max / len;
+  }
+
+  knob.style.transform = `translate(${x}px, ${y}px)`;
+
+  return {
+    x: x / max,
+    y: y / max
+  };
 }
-pad.addEventListener('pointerdown', e => { pid = e.pointerId; pad.setPointerCapture(pid); pm(e); });
-pad.addEventListener('pointermove', e => { if (e.pointerId === pid) pm(e); });
-const pe = e => {
-  if (e.pointerId === pid) { pid = null; stick.x = stick.y = 0; kn.style.transform = ''; }
-};
-pad.addEventListener('pointerup', pe);
-pad.addEventListener('pointercancel', pe);
-[['bP','p'],['bK','k'],['bS','s']].forEach(([id,k]) => {
-  $(id).addEventListener('pointerdown', e => { buf[k] = now(); e.currentTarget.classList.add('on'); });
+
+/* LEFT JOYSTICK: MOVEMENT */
+pad.addEventListener('pointerdown', e => {
+  e.preventDefault();
+  pid = e.pointerId;
+  pad.setPointerCapture(pid);
+  const v = moveStick(e, pad, kn);
+  stick.x = v.x;
+  stick.y = v.y;
 });
-['bP','bK','bS'].forEach(id => {
-  ['pointerup','pointercancel','lostpointercapture'].forEach(v => {
-    $(id).addEventListener(v, e => e.currentTarget.classList.remove('on'));
-  });
+
+pad.addEventListener('pointermove', e => {
+  if (e.pointerId !== pid) return;
+  const v = moveStick(e, pad, kn);
+  stick.x = v.x;
+  stick.y = v.y;
 });
-$('bB').addEventListener('pointerdown', e => { held.b = true; e.currentTarget.classList.add('on'); });
-['pointerup','pointercancel','lostpointercapture'].forEach(v => {
-  $('bB').addEventListener(v, e => { held.b = false; e.currentTarget.classList.remove('on'); });
+
+function releaseMove(e) {
+  if (e.pointerId !== pid) return;
+  pid = null;
+  stick.x = stick.y = 0;
+  kn.style.transform = '';
+}
+
+pad.addEventListener('pointerup', releaseMove);
+pad.addEventListener('pointercancel', releaseMove);
+
+/* RIGHT JOYSTICK: COMBAT */
+function combatMove(e) {
+  const v = moveStick(e, combatPad, combatKnob);
+
+  let action = '';
+
+  if (Math.abs(v.x) > .45 || Math.abs(v.y) > .45) {
+    if (Math.abs(v.x) > Math.abs(v.y)) {
+      action = v.x < 0 ? 'p' : 'k';
+    } else {
+      action = v.y < 0 ? 's' : 'b';
+    }
+  }
+
+  if (action !== combatAction) {
+    combatAction = action;
+
+    held.b = action === 'b';
+
+    if (action === 'p') buf.p = now();
+    if (action === 'k') buf.k = now();
+    if (action === 's') buf.s = now();
+  }
+
+  combatPad.classList.toggle('active', !!action);
+}
+
+combatPad.addEventListener('pointerdown', e => {
+  e.preventDefault();
+  combatPid = e.pointerId;
+  combatPad.setPointerCapture(combatPid);
+  combatMove(e);
 });
-$('bW').addEventListener('pointerdown', swap);
-addEventListener('contextmenu', e => e.preventDefault());
+
+combatPad.addEventListener('pointermove', e => {
+  if (e.pointerId !== combatPid) return;
+  combatMove(e);
+});
+
+function releaseCombat(e) {
+  if (e.pointerId !== combatPid) return;
+
+  combatPid = null;
+  combatAction = '';
+  held.b = false;
+
+  combatKnob.style.transform = '';
+  combatPad.classList.remove('active');
+}
+
+combatPad.addEventListener('pointerup', releaseCombat);
+combatPad.addEventListener('pointercancel', releaseCombat);
+
+/* SPECIAL SELECTION */
+$('bW').addEventListener('pointerdown', e => {
+  e.preventDefault();
+  swap();
+});
 
 /* RIVAL AI */
 const AI = {
