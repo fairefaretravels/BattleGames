@@ -1175,6 +1175,50 @@ cl.set(0,1.5*BIG,0);
 P.reset(-3*BIG,0);
 E.reset(3*BIG,0);
 setOpp();
+
+/* TEST HOOK (Cypress): only exists when the page is opened with ?test. Normal play is unaffected. */
+if (/[?&]test\b/.test(location.search)) {
+  const realAI = AI.get.bind(AI);
+  let aiOff = false;
+  AI.get = (...a) => aiOff ? none : realAI(...a);
+  window.__test = {
+    state: () => ({
+      st:G.st, round:G.round, wins:G.w.slice(), timer:G.timer, opp:G.opp,
+      hp:[P.hp, E.hp], meter:P.meter, fighterSt:[P.st, E.st],
+      anim:[P.animAction, E.animAction], chars:[P.character, E.character],
+      dist:Math.hypot(E.g.position.x-P.g.position.x, E.g.position.z-P.g.position.z) / BIG,
+      sheetsFailed:Object.values(SK_SHEETS).filter(v => v.failed).map(v => v.filename),
+      sheetsReady:Object.values(SK_SHEETS).filter(v => v.ready).length,
+      sheetsTotal:Object.keys(SK_SHEETS).length
+    }),
+    shown:() => [P, E].map(f => !!(f.spr.material.map && f.curSheet && f.curSheet.ready)),
+    bounds:() => [P, E].map(f => {   // sprite plane projected to NDC (-1..1); h = fraction of viewport height
+      f.spr.updateMatrixWorld(true);
+      const b = new THREE.Box3().setFromObject(f.spr);
+      let x0 = 9, x1 = -9, y0 = 9, y1 = -9;
+      for (const x of [b.min.x, b.max.x]) for (const y of [b.min.y, b.max.y]) for (const z of [b.min.z, b.max.z]) {
+        const v = new V3(x, y, z).project(cam);
+        x0 = Math.min(x0, v.x); x1 = Math.max(x1, v.x); y0 = Math.min(y0, v.y); y1 = Math.max(y1, v.y);
+      }
+      return {x0, x1, y0, y1, cx:(x0+x1)/2, h:(y1-y0)/2};
+    }),
+    aiOff:v => { aiOff = !!v; },
+    skipIntro:() => { if (G.st === 'intro') G.t = 0; },
+    skipRoundEnd:() => { if (G.st === 'roundend') G.t = 0; },
+    setTimer:v => { G.timer = v; },
+    setHp:(p, e) => { if (p != null) P.hp = p; if (e != null) E.hp = e; },
+    setMeter:v => { P.meter = v; },
+    setDistance:d => {   // d in "small fighter" units, same units as ranges (x BIG applied here)
+      P.g.position.set(-d*BIG/2, 0, 0);
+      E.g.position.set(d*BIG/2, 0, 0);
+    },
+    hit:(who, dmg) => {  // goes through the real hurt() path (block, KO, endRound)
+      const t = who === 'P' ? P : E, by = who === 'P' ? E : P;
+      t.hurt(dmg, .2, 0, who === 'P' ? -1 : 1, 0, by, 'TEST');
+    },
+    unlock:n => { G.unlock = n; }
+  };
+}
 frame();
 </script>
 
