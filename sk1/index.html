@@ -116,6 +116,41 @@ canvas { display: block; position: fixed; inset: 0; width: 100%; height: 100%; }
 }
 .btn.alt:active { box-shadow: 0 1px 0 #150a33; }
 
+/* FIGHTER SELECT (portraits) */
+#fighterSelect { width: min(100%, 420px); }
+.pickTitle {
+  color: var(--gold);
+  font-size: 13px;
+  letter-spacing: 2px;
+  margin-bottom: 10px;
+}
+.fighterOptions { display: flex; justify-content: center; gap: 8px; }
+.fighterPick {
+  flex: 1; min-width: 0; padding: 6px 5px 8px;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  background: #101a2b; border: 2px solid #53677c; border-radius: 5px;
+  color: #fff; font-family: Impact, sans-serif; font-size: 15px; letter-spacing: 1px;
+  cursor: pointer; opacity: .75;
+  transition: transform 120ms ease, opacity 120ms ease, box-shadow 120ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.fighterPick:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+.fighterPick.selected {
+  opacity: 1; transform: translateY(-3px);
+  border-color: var(--gold); background: #145b4b;
+  box-shadow: 0 0 16px #6dffc877;
+}
+.portrait {
+  position: relative; width: 100%; aspect-ratio: 3 / 4; overflow: hidden;
+  border-radius: 3px; border: 1px solid #ffffff2a;
+  background: radial-gradient(circle at 50% 35%, #25405a, #0a1220);
+}
+.portrait img { width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block; }
+.portrait.missing::after {   /* shown only if the .jpg can't be found */
+  content: attr(data-initial);
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  font-size: 44px; color: #6dffc8aa;
+}
 
 /* DUAL JOYSTICK MOBILE CONTROLS */
 #ctrl {
@@ -127,7 +162,6 @@ canvas { display: block; position: fixed; inset: 0; width: 100%; height: 100%; }
   z-index: 4;
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
-
 #pad, #combatPad {
   position: absolute;
   bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
@@ -140,10 +174,8 @@ canvas { display: block; position: fixed; inset: 0; width: 100%; height: 100%; }
   pointer-events: auto;
   touch-action: none;
 }
-
 #pad { left: 12px; }
 #combatPad { right: 12px; }
-
 #knob, #combatKnob {
   position: absolute;
   left: 23px;
@@ -156,16 +188,8 @@ canvas { display: block; position: fixed; inset: 0; width: 100%; height: 100%; }
   box-shadow: 0 3px 8px #0009;
   pointer-events: none;
 }
-
-#combatKnob {
-  background: linear-gradient(145deg, #ffb9ed, #9b43a0);
-}
-
-#combatPad.active {
-  border-color: #ffb9ed;
-  box-shadow: 0 0 14px #d85bff88;
-}
-
+#combatKnob { background: linear-gradient(145deg, #ffb9ed, #9b43a0); }
+#combatPad.active { border-color: #ffb9ed; box-shadow: 0 0 14px #d85bff88; }
 #bW {
   position: absolute;
   right: 29px;
@@ -179,19 +203,9 @@ canvas { display: block; position: fixed; inset: 0; width: 100%; height: 100%; }
   pointer-events: auto;
   touch-action: none;
 }
-
 @media(max-width:380px) {
-  #pad, #combatPad {
-    width: 78px;
-    height: 78px;
-  }
-
-  #knob, #combatKnob {
-    width: 36px;
-    height: 36px;
-    left: 19px;
-    top: 19px;
-  }
+  #pad, #combatPad { width: 78px; height: 78px; }
+  #knob, #combatKnob { width: 36px; height: 36px; left: 19px; top: 19px; }
 }
 
 /* RADIO SWITCH */
@@ -213,41 +227,6 @@ canvas { display: block; position: fixed; inset: 0; width: 100%; height: 100%; }
 #skRadio.err { border-color: var(--red); color: var(--red); box-shadow: 0 0 10px #ff3b5c66; }
 @keyframes skPulse { 0%,100% { box-shadow: 0 0 6px #6dffc866; } 50% { box-shadow: 0 0 16px #6dffc8cc; } }
 @keyframes skBlink { 50% { opacity: .45; } }
-
-  #fighterSelect {
-  width: min(100%, 360px);
-}
-
-.pickTitle {
-  color: var(--gold);
-  font-size: 13px;
-  letter-spacing: 2px;
-  margin-bottom: 10px;
-}
-
-.fighterOptions {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-}
-
-.fighterPick {
-  flex: 1;
-  min-width: 0;
-  padding: 12px 5px;
-  background: #101a2b;
-  border: 2px solid #53677c;
-  color: white;
-  font-family: Impact, sans-serif;
-  font-size: 16px;
-  letter-spacing: 1px;
-}
-
-.fighterPick.selected {
-  border-color: var(--gold);
-  background: #145b4b;
-  box-shadow: 0 0 14px #6dffc855;
-}
 </style>
 </head>
 <body>
@@ -285,31 +264,37 @@ canvas { display: block; position: fixed; inset: 0; width: 100%; height: 100%; }
   <h1>GARDEN OF<br>TERROR</h1>
   <p id="mtxt"></p>
   <div id="fighterSelect">
-  <div class="pickTitle">CHOOSE YOUR FIGHTER</div>
-  <div class="fighterOptions">
-    <button class="fighterPick selected" data-fighter="Gontor">GONTOR</button>
-    <button class="fighterPick" data-fighter="TRX">TRX</button>
-    <button class="fighterPick" data-fighter="Root">ROOT</button>
+    <div class="pickTitle">CHOOSE YOUR FIGHTER</div>
+    <div class="fighterOptions">
+      <button class="fighterPick selected" data-fighter="Gontor">
+        <span class="portrait" data-initial="G"><img data-img="Gontor" alt=""></span><span>GONTOR</span>
+      </button>
+      <button class="fighterPick" data-fighter="Klondor">
+        <span class="portrait" data-initial="K"><img data-img="Klondor" alt=""></span><span>KLONDOR</span>
+      </button>
+      <button class="fighterPick" data-fighter="Root">
+        <span class="portrait" data-initial="R"><img data-img="Root" alt=""></span><span>ROOT</span>
+      </button>
+    </div>
   </div>
-</div>
   <button class="btn" id="go">START FIGHT</button>
   <button class="btn alt" id="nx" style="display:none">NEXT FIGHTER</button>
   <p>
     Keys: A/D or arrows move · J punch · K kick · L block · Space special · Q swap special<br>
+    Menu: left/right arrows pick your fighter<br>
     Touch: stick left/right + PUNCH / KICK / BLOCK / SP / swap<br>
     Pad: stick/D-pad move · X punch · A kick · B/LB/LT block · Y/RT special · RB swap · A/Start fight
   </p>
 </div>
 
-<!-- MOBILE CONTROLS --><div id="ctrl">
+<!-- MOBILE CONTROLS -->
+<div id="ctrl">
   <div id="pad" aria-label="Movement joystick">
     <div id="knob"></div>
   </div>
-
   <div id="combatPad" aria-label="Combat joystick">
     <div id="combatKnob"></div>
   </div>
-
   <div class="ab" id="bW">NEXT SP</div>
 </div>
 
@@ -785,11 +770,12 @@ function fb() {
   return m;
 }
 
-/* GAME STATE */
+/* GAME STATE
+   pc = the fighter the player picked on the menu (Gontor / Klondor / Root) */
 const P = new F(1, 5, 1, 'Gontor');
 const E = new F(1.1, 3.6, 1, 'Klondor');
 P.mv = E.mv = MV.p;
-const G = {st:'menu', t:0, round:1, w:[0,0], timer:60, hs:0, shake:0, opp:0, unlock:1};
+const G = {st:'menu', t:0, round:1, w:[0,0], timer:60, hs:0, shake:0, opp:0, unlock:1, pc:'Gontor'};
 try {
   G.unlock = Math.min(3, Math.max(1, +localStorage.getItem('sk_unlock') || 1));
 } catch(e) {}
@@ -808,9 +794,12 @@ function pop(t) {
   void b.offsetWidth;
   b.className = 'show';
 }
+/* The opponent is always one of the two fighters the player did NOT pick.
+   With Gontor selected this gives Klondor, Root, Klondor, as before. */
 function setOpp() {
   const o = OPP[G.opp];
-  E.setCharacter(G.opp === 1 ? 'Root' : 'Klondor');
+  const others = Object.keys(SK_CHARACTERS).filter(c => c !== G.pc);
+  E.setCharacter(others[G.opp % others.length]);
   E.spd = o.spd;
   E.dm = o.dm;
   E.g.scale.setScalar(o.sc*.85*BIG);
@@ -831,6 +820,7 @@ function startMatch() {
   G.w = [0,0];
   G.round = 1;
   P.sp = 0;
+  P.setCharacter(G.pc);
   setOpp();
   startRound();
 }
@@ -869,6 +859,48 @@ function menuText() {
 $('go').onclick = () => { beep(400, .1); startMatch(); };
 $('nx').onclick = () => { G.opp = (G.opp+1)%3; startMatch(); };
 menuText();
+
+/* FIGHTER SELECT: portraits (Gontor.jpg / Klondor.jpg / Root.jpg) */
+const SK_PORTRAIT_ROOTS = ['./', './sk1/', './sprites/', './sk1/sprites/', '/sk1/', '/sk1/sprites/'];
+let SK_PORTRAIT_OK = null;   // first folder that actually served a portrait
+function skLoadPortrait(img) {
+  const name = img.dataset.img + '.jpg';
+  const roots = SK_PORTRAIT_OK
+    ? [SK_PORTRAIT_OK].concat(SK_PORTRAIT_ROOTS.filter(r => r !== SK_PORTRAIT_OK))
+    : SK_PORTRAIT_ROOTS;
+  let i = 0;
+  const next = () => {
+    if (i >= roots.length) {
+      img.onerror = null;
+      img.removeAttribute('src');
+      img.parentNode.classList.add('missing');
+      console.warn('[portraits] ' + name + ' not found. Tried: ' + roots.join(', '));
+      return;
+    }
+    img.src = roots[i++] + name;
+  };
+  img.onload = () => { if (!SK_PORTRAIT_OK) SK_PORTRAIT_OK = roots[i - 1]; };
+  img.onerror = next;
+  next();
+}
+document.querySelectorAll('#fighterSelect img[data-img]').forEach(skLoadPortrait);
+
+function selectFighter(c) {
+  if (!SK_CHARACTERS[c]) return;
+  G.pc = c;
+  document.querySelectorAll('.fighterPick').forEach(b =>
+    b.classList.toggle('selected', b.dataset.fighter === c));
+}
+document.querySelectorAll('.fighterPick').forEach(b => {
+  b.addEventListener('click', () => { beep(520, .06, 'square', .05); selectFighter(b.dataset.fighter); });
+});
+/* arrow keys cycle the pick while the menu is open */
+addEventListener('keydown', e => {
+  if (G.st !== 'menu' || (e.code !== 'ArrowLeft' && e.code !== 'ArrowRight')) return;
+  const list = Object.keys(SK_CHARACTERS);
+  const d = e.code === 'ArrowRight' ? 1 : -1;
+  selectFighter(list[(list.indexOf(G.pc) + d + list.length) % list.length]);
+});
 
 /* KEYBOARD AND TOUCH INPUT */
 const keys = {};
@@ -1245,7 +1277,7 @@ if (/[?&]test\b/.test(location.search)) {
   AI.get = (...a) => aiOff ? none : realAI(...a);
   window.__test = {
     state: () => ({
-      st:G.st, round:G.round, wins:G.w.slice(), timer:G.timer, opp:G.opp,
+      st:G.st, round:G.round, wins:G.w.slice(), timer:G.timer, opp:G.opp, pc:G.pc,
       hp:[P.hp, E.hp], meter:P.meter, fighterSt:[P.st, E.st],
       anim:[P.animAction, E.animAction], chars:[P.character, E.character],
       dist:Math.hypot(E.g.position.x-P.g.position.x, E.g.position.z-P.g.position.z) / BIG,
@@ -1278,7 +1310,8 @@ if (/[?&]test\b/.test(location.search)) {
       const t = who === 'P' ? P : E, by = who === 'P' ? E : P;
       t.hurt(dmg, .2, 0, who === 'P' ? -1 : 1, 0, by, 'TEST');
     },
-    unlock:n => { G.unlock = n; }
+    unlock:n => { G.unlock = n; },
+    pick:c => selectFighter(c)
   };
 }
 frame();
