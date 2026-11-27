@@ -31,7 +31,7 @@ h1{margin:0;font-size:min(14vw,80px);letter-spacing:.06em;line-height:.95}h2{mar
 <div id="kills">0 KILLS</div><div id="msg"></div></div>
 <div id="vig"></div><div class="ring" id="lr"><i></i></div><div class="ring" id="rr"><i></i></div>
 <div id="ov" class="cover"><div class="ct"><h1 id="t1">HICKSVILLE</h1><h2>SURVIVE THE NIGHTMARE</h2>
-<p id="bf">REACH THE RED FLAG BEFORE THE SCORPION DOES. SHOTS SLOW IT DOWN.<br>LEFT STICK: MOVE (PUSH FULL TO SPRINT) | RIGHT STICK: AIM AND FIRE<br>SWIPE THE UPPER SCREEN TO TURN THE CAMERA</p>
+<p id="bf">REACH THE RED FLAG BEFORE THE SCORPION DOES. SHOTS SLOW IT DOWN.<br>LEFT STICK: MOVE (PUSH FULL TO SPRINT) | RIGHT STICK: AIM AND FIRE<br>PUSH THE LEFT STICK DOWN TO TURN AROUND, OR SWIPE THE UPPER SCREEN TO TURN THE CAMERA</p>
 <p id="go">TOUCH ANYWHERE TO DEPLOY</p></div></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
@@ -94,7 +94,7 @@ function tn(f,dur,vol,ty='square'){if(!AC)return;const o=AC.createOscillator(),g
 // input
 const TOUCH='ontouchstart' in window||navigator.maxTouchPoints>0;let yaw=0;const pv={x:0,z:SZ};
 const L={x:0,y:0,id:null,sx:0,sy:0},Rt={x:0,y:0,id:null,sx:0,sy:0},C={id:null,lx:0},K={},Mo={x:0,y:-1,dn:false,cam:false};
-const tw=(x,y)=>({x:Math.cos(yaw)*x+Math.sin(yaw)*y,z:-Math.sin(yaw)*x+Math.cos(yaw)*y});
+const tw=(x,y,q=yaw)=>({x:Math.cos(q)*x+Math.sin(q)*y,z:-Math.sin(q)*x+Math.cos(q)*y});
 const lr=$('lr'),rr=$('rr'),ov=$('ov');
 function place(el,x,y,kx,ky){el.style.transform=`translate(${x-55}px,${y-55}px)`;el.firstChild.style.transform=`translate(${kx}px,${ky}px)`}
 function rest(s){if(s===L)place(lr,innerWidth*.18,innerHeight-125,0,0);else if(s===Rt)place(rr,innerWidth*.82,innerHeight-125,0,0)}
@@ -133,11 +133,13 @@ function inputs(){let mx=L.x,my=L.y,ax=Rt.x,ay=Rt.y,f=Math.hypot(ax,ay)>.3;
  return{mx,my,m,ax,ay,f,sp:m>.92||(K.ShiftLeft&&m>0)}}
 function update(dt){T+=dt;const I=inputs();
  const spd=I.sp?12.5:8.5*Math.min(1,I.m/.9)*(I.f?.8:1);
- const wv=tw(I.mx,I.my);P.x+=wv.x*spd*dt;P.z+=wv.z*spd*dt;push(P,.9,true);P.z=Math.max(-215,Math.min(30,P.z));
- if(I.f){const wa=tw(I.ax,I.ay);let a=Math.atan2(wa.z,wa.x),bd=.3,bt=null;
+ if(I.m>0){if(!P.mv){P.mv=true;P.ym=yaw}}else P.mv=false;
+ const wv=tw(I.mx,I.my,P.ym);P.x+=wv.x*spd*dt;P.z+=wv.z*spd*dt;
+ if(I.m>.3&&!I.f&&C.id===null&&!Mo.cam&&!K.KeyQ&&!K.KeyE){let d=Math.atan2(-wv.x,-wv.z)-yaw;d=Math.atan2(Math.sin(d),Math.cos(d));yaw+=d*Math.min(1,dt*3)}push(P,.9,true);P.z=Math.max(-215,Math.min(30,P.z));
+ if(I.f){if(!P.af){P.af=true;P.ya=yaw}const wa=tw(I.ax,I.ay,Mo.dn?yaw:P.ya);let a=Math.atan2(wa.z,wa.x),bd=.3,bt=null;
   for(const e of E){const dx=e.x-P.x,dz=e.z-P.z;if(dx*dx+dz*dz>1800)continue;let da=Math.atan2(dz,dx)-a;da=Math.atan2(Math.sin(da),Math.cos(da));if(Math.abs(da)<bd){bd=Math.abs(da);bt=da}}
   if(bt!==null)a+=bt*.6;P.ax=Math.cos(a);P.az=Math.sin(a);P.fl=I.ax>=0?1:-1;P.idle=0}
- else{P.idle+=dt;if(I.mx>.15)P.fl=1;else if(I.mx<-.15)P.fl=-1}
+ else{P.af=false;P.idle+=dt;if(I.mx>.15)P.fl=1;else if(I.mx<-.15)P.fl=-1}
  P.cd-=dt;P.ft-=dt;P.hit-=dt;
  if(P.rl>0){P.rl-=dt;if(P.rl<=0){const n=Math.min(30,P.res);P.ammo=n;P.res-=n}}
  else if(P.ammo<=0&&P.res>0){P.rl=1.3;msg('RELOADING',1.3);tn(500,.1,.12)}
